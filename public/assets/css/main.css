@@ -1,0 +1,69 @@
+/*
+  Thiết kế Linh2Store - Không sử dụng màu vàng
+  Palette:
+  - Xanh pastel nhạt: #E3F2FD (primary background)
+  - Xanh pastel đậm: #BBDEFB (secondary)
+  - Hồng pastel: #FCE4EC (accent)
+  - Hồng cá tính: #EC407A (CTA)
+  - Xám nhạt: #F5F5F5 (bg phụ)
+  - Trắng: #FFFFFF (nền chính)
+  Font: Poppins (body), Playfair Display (tiêu đề)
+*/
+
+:root {
+  --color-primary: #E3F2FD;
+  --color-secondary: #BBDEFB;
+  --color-accent: #FCE4EC;
+  --color-cta: #EC407A;
+  --color-muted: #F5F5F5;
+  --color-white: #FFFFFF;
+  --text-color: #333333;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: 'Poppins', system-ui, sans-serif; color: var(--text-color); }
+.bg-main { background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-white) 100%); }
+
+/* Container và grid 12 cột giản lược */
+.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 16px; }
+.row { display: flex; flex-wrap: wrap; margin: 0 -8px; }
+.col { padding: 8px; }
+
+/* Header */
+.site-header { background: var(--color-white); position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.header-inner { display: flex; align-items: center; justify-content: space-between; }
+.logo { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: #1A237E; text-decoration: none; }
+.nav a { margin-right: 16px; text-decoration: none; color: #3949AB; }
+.nav .btn.cta { background: var(--color-cta); color: var(--color-white); padding: 8px 12px; border-radius: 8px; }
+.inline { display: inline; }
+.btn-link { border: none; background: transparent; color: #3949AB; cursor: pointer; text-decoration: underline; }
+
+/* Hero */
+.hero { background: var(--color-secondary); border-radius: 16px; padding: 24px; display: grid; gap: 16px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 32px; margin: 0; }
+.hero p { margin: 0; }
+.hero .actions .btn-cta { background: var(--color-cta); color: var(--color-white); padding: 10px 16px; border: none; border-radius: 10px; cursor: pointer; }
+
+/* Card sản phẩm */
+.product-card { background: var(--color-white); border-radius: 12px; padding: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: transform 0.2s ease; }
+.product-card:hover { transform: translateY(-2px); }
+.product-card img { width: 100%; border-radius: 10px; }
+.product-card .name { font-weight: 600; margin: 8px 0 4px; }
+.product-card .price { color: #C2185B; font-weight: 600; }
+.swatches { display: flex; gap: 8px; margin-top: 8px; }
+.swatch { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+
+/* Alert */
+.alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; }
+.alert.success { background: #E8F5E9; color: #2E7D32; }
+.alert.error { background: #FFEBEE; color: #C62828; }
+
+/* Footer */
+.site-footer { background: var(--color-muted); padding: 24px 0; margin-top: 40px; }
+.site-footer p { margin: 0; text-align: center; }
+
+/* Responsive breakpoints */
+@media (min-width: 768px) {
+  .hero { grid-template-columns: 1fr 1fr; align-items: center; }
+}
+

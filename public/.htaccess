@@ -1,0 +1,5 @@
+# Chuyển hướng toàn bộ về public/index.php (nếu dùng Apache)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
