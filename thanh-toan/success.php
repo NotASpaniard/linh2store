@@ -38,10 +38,11 @@ if ($order_id) {
         
         // Lấy chi tiết đơn hàng
         $stmt = $conn->prepare("
-            SELECT oi.*, p.name, p.sku, b.name as brand_name
+            SELECT oi.*, p.sku, b.name as brand_name, pc.color_name, pc.color_code
             FROM order_items oi
             LEFT JOIN products p ON oi.product_id = p.id
             LEFT JOIN brands b ON p.brand_id = b.id
+            LEFT JOIN product_colors pc ON oi.product_color_id = pc.id
             WHERE oi.order_id = ?
         ");
         $stmt->execute([$order_id]);
@@ -382,10 +383,13 @@ if (!$order) {
                     <?php foreach ($order_items as $item): ?>
                         <div class="order-item">
                             <div class="order-item-info">
-                                <div class="order-item-name"><?php echo htmlspecialchars($item['name']); ?></div>
+                                <div class="order-item-name"><?php echo htmlspecialchars($item['product_name']); ?></div>
                                 <div class="order-item-details">
                                     <?php if ($item['brand_name']): ?>
                                         <?php echo htmlspecialchars($item['brand_name']); ?>
+                                    <?php endif; ?>
+                                    <?php if ($item['color_name']): ?>
+                                        - <?php echo htmlspecialchars($item['color_name']); ?>
                                     <?php endif; ?>
                                     <?php if ($item['sku']): ?>
                                         - SKU: <?php echo htmlspecialchars($item['sku']); ?>
@@ -395,7 +399,7 @@ if (!$order) {
                                 </div>
                             </div>
                             <div class="order-item-price">
-                                <?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?>đ
+                                <?php echo number_format($item['total_price'], 0, ',', '.'); ?>đ
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -419,7 +423,7 @@ if (!$order) {
                     </div>
                     <div class="summary-row total">
                         <span>Tổng cộng:</span>
-                        <span><?php echo number_format($order['total_amount'], 0, ',', '.'); ?>đ</span>
+                        <span><?php echo number_format($order['final_amount'], 0, ',', '.'); ?>đ</span>
                     </div>
                 </div>
                 
@@ -434,7 +438,7 @@ if (!$order) {
             <?php if ($order['payment_method'] === 'bank_transfer'): ?>
                 <div class="payment-info">
                     <h3><i class="fas fa-university"></i> Thông tin chuyển khoản</h3>
-                    <p>Vui lòng chuyển khoản số tiền <strong><?php echo number_format($order['total_amount'], 0, ',', '.'); ?>đ</strong> đến tài khoản:</p>
+                    <p>Vui lòng chuyển khoản số tiền <strong><?php echo number_format($order['final_amount'], 0, ',', '.'); ?>đ</strong> đến tài khoản:</p>
                     <p><strong>Ngân hàng:</strong> Vietcombank<br>
                     <strong>STK:</strong> 1234567890<br>
                     <strong>Chủ TK:</strong> Linh2Store<br>

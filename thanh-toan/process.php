@@ -94,14 +94,14 @@ try {
     
     $stmt = $conn->prepare("
         INSERT INTO orders (
-            user_id, order_number, full_name, phone, email, address, city, district,
-            payment_method, notes, subtotal, shipping_fee, total_amount, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+            user_id, order_number, subtotal, shipping_fee, discount_amount, total_amount, final_amount,
+            payment_method, full_name, phone, email, address, city, district, notes, status, created_at
+        ) VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
     ");
     
     $stmt->execute([
-        $user['id'], $order_number, $full_name, $phone, $email, $address, $city, $district,
-        $payment_method, $notes, $subtotal, $shipping_fee, $total_amount
+        $user['id'], $order_number, $subtotal, $shipping_fee, $total_amount, $total_amount,
+        $payment_method, $full_name, $phone, $email, $address, $city, $district, $notes
     ]);
     
     $order_id = $conn->lastInsertId();
@@ -112,10 +112,12 @@ try {
         
         // Thêm chi tiết đơn hàng
         $stmt = $conn->prepare("
-            INSERT INTO order_items (order_id, product_id, quantity, price, created_at)
-            VALUES (?, ?, ?, ?, NOW())
+            INSERT INTO order_items (order_id, product_id, product_color_id, product_name, product_price, quantity, total_price, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
         ");
-        $stmt->execute([$order_id, $item['product_id'], $item['quantity'], $price]);
+        $product_name = $item['name'];
+        $total_price = $price * $item['quantity'];
+        $stmt->execute([$order_id, $item['product_id'], $item['product_color_id'], $product_name, $price, $item['quantity'], $total_price]);
         
         // Cập nhật tồn kho
         $new_stock = $item['stock_quantity'] - $item['quantity'];
