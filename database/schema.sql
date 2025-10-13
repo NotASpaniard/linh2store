@@ -361,7 +361,7 @@ INSERT INTO products (name, description, short_description, brand_id, category_i
 -- Thêm hình ảnh mẫu cho tất cả 100 sản phẩm
 INSERT INTO product_images (product_id, image_url, alt_text, is_primary) VALUES
 -- MAC Products (1-10)
-(1, 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop&crop=center', 'MAC Ruby Woo', 1),
+(1, 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop&crop=center&auto=format', 'MAC Ruby Woo', 1),
 (2, 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c0?w=400&h=400&fit=crop&crop=center', 'MAC Velvet Teddy', 1),
 (3, 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c1?w=400&h=400&fit=crop&crop=center', 'MAC Chili', 1),
 (4, 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c2?w=400&h=400&fit=crop&crop=center', 'MAC Twig', 1),
@@ -491,6 +491,32 @@ UPDATE brands SET logo = 'https://via.placeholder.com/200x100/E3F2FD/EC407A?text
 UPDATE brands SET logo = 'https://via.placeholder.com/200x100/E3F2FD/EC407A?text=Fenty+Beauty' WHERE id = 8;
 UPDATE brands SET logo = 'https://via.placeholder.com/200x100/E3F2FD/EC407A?text=Charlotte+Tilbury' WHERE id = 9;
 UPDATE brands SET logo = 'https://via.placeholder.com/200x100/E3F2FD/EC407A?text=Pat+McGrath' WHERE id = 10;
+
+-- Tạo bảng inventory_logs
+CREATE TABLE IF NOT EXISTS inventory_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    type ENUM('restock', 'adjust', 'sale', 'return') NOT NULL,
+    quantity INT NOT NULL,
+    old_quantity INT NOT NULL,
+    new_quantity INT NOT NULL,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tạo bảng order_status_logs
+CREATE TABLE IF NOT EXISTS order_status_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    old_status VARCHAR(50),
+    new_status VARCHAR(50) NOT NULL,
+    changed_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE CASCADE
+);
 
 -- Thêm màu sắc cho sản phẩm
 INSERT INTO product_colors (product_id, color_name, color_code, stock_quantity, status) VALUES
