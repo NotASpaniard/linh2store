@@ -211,8 +211,9 @@ INSERT INTO categories (name, description, status) VALUES
 
 -- Tạo user admin mặc định
 INSERT INTO users (username, email, password, full_name, role, status) VALUES
-('admin', 'admin@linh2store.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin', 'active');
--- Mật khẩu mặc định: password
+('admin', 'admin@linh2store.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin', 'active'),
+('testuser', 'test@linh2store.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test User', 'user', 'active');
+-- Mật khẩu mặc định cho cả admin và testuser: password
 
 -- Chèn 100 sản phẩm mẫu
 INSERT INTO products (name, description, short_description, brand_id, category_id, price, sale_price, sku, stock_quantity, status, featured) VALUES

@@ -9,7 +9,12 @@ require_once '../config/session.php';
 
 // Nếu đã đăng nhập, chuyển về trang chủ
 if (isLoggedIn()) {
-    header('Location: /linh2store/');
+    $user = getCurrentUser();
+    if ($user && $user['role'] === 'admin') {
+        header('Location: ../admin/');
+    } else {
+        header('Location: ../');
+    }
     exit();
 }
 
@@ -54,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Chuyển hướng theo role
                 if ($user['role'] === 'admin') {
-                    header('Location: /linh2store/admin/');
+                    header('Location: ../admin/');
                 } else {
-                    header('Location: /linh2store/');
+                    header('Location: ../');
                 }
                 exit();
             } else {

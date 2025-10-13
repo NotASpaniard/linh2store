@@ -9,7 +9,7 @@ require_once '../config/session.php';
 
 // Nếu đã đăng nhập, chuyển về trang chủ
 if (isLoggedIn()) {
-    header('Location: /linh2store/');
+    header('Location: ../');
     exit();
 }
 

@@ -78,11 +78,11 @@ try {
             <div class="container">
                 <div class="header-content">
                     <!-- Logo -->
-                    <a href="/" class="logo">Linh2Store</a>
+                    <a href="index.php" class="logo">Linh2Store</a>
                     
                     <!-- Navigation -->
                     <nav class="nav">
-                        <a href="/" class="nav-link">Trang chủ</a>
+                        <a href="index.php" class="nav-link">Trang chủ</a>
                         <a href="san-pham/" class="nav-link">Sản phẩm</a>
                         <a href="thuong-hieu/" class="nav-link">Thương hiệu</a>
                         <a href="blog/" class="nav-link">Blog</a>

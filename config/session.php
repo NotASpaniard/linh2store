@@ -50,7 +50,7 @@ function getCurrentUser() {
  */
 function logout() {
     session_destroy();
-    header('Location: /linh2store/auth/dang-nhap.php');
+    header('Location: auth/dang-nhap.php');
     exit();
 }
 ?>
