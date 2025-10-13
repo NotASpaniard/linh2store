@@ -9,7 +9,7 @@ require_once '../config/database.php';
 
 // Lấy tham số từ URL
 $page = max(1, intval($_GET['page'] ?? 1));
-$limit = 12;
+$limit = 12; // 2-3 sản phẩm mỗi hàng x 4 hàng = 8-12 sản phẩm
 $offset = ($page - 1) * $limit;
 
 $search = trim($_GET['search'] ?? '');
@@ -203,7 +203,7 @@ $total_pages = ceil($total_products / $limit);
         <div class="container">
             <div class="row">
                 <!-- Sidebar Filters -->
-                <div class="col-3">
+                <div class="col-3 filters-sidebar-wrapper">
                     <div class="filters-sidebar">
                         <h3>Bộ lọc</h3>
                         
@@ -267,7 +267,7 @@ $total_pages = ceil($total_products / $limit);
                 </div>
                 
                 <!-- Products List -->
-                <div class="col-9">
+                <div class="col-9 products-main-content">
                     <div class="products-header">
                         <div class="products-info">
                             <h2>Sản phẩm</h2>
@@ -303,9 +303,10 @@ $total_pages = ceil($total_products / $limit);
                             <?php foreach ($products as $product): ?>
                                 <div class="product-card">
                                     <div class="product-image">
-                                        <img src="<?php echo $product['image_url'] ?: '../assets/images/no-image.jpg'; ?>" 
+                                        <img src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>" 
                                              alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                             data-src="<?php echo $product['image_url'] ?: '../assets/images/no-image.jpg'; ?>">
+                                             data-src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>"
+                                             loading="lazy">
                                         <div class="product-actions">
                                             <button class="action-btn wishlist-btn" data-product-id="<?php echo $product['id']; ?>">
                                                 <i class="fas fa-heart"></i>
@@ -346,27 +347,33 @@ $total_pages = ceil($total_products / $limit);
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Pagination -->
+                    <!-- Pagination với slide -->
                     <?php if ($total_pages > 1): ?>
-                        <div class="pagination">
-                            <?php if ($page > 1): ?>
-                                <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>" class="page-btn">
+                        <div class="pagination-slider">
+                            <div class="pagination-container">
+                                <button class="pagination-btn prev-btn" <?php echo $page <= 1 ? 'disabled' : ''; ?>>
                                     <i class="fas fa-chevron-left"></i>
-                                </a>
-                            <?php endif; ?>
-                            
-                            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                                <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>" 
-                                   class="page-btn <?php echo $i === $page ? 'active' : ''; ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            <?php endfor; ?>
-                            
-                            <?php if ($page < $total_pages): ?>
-                                <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>" class="page-btn">
+                                </button>
+                                
+                                <div class="pagination-slides">
+                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                        <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>" 
+                                           class="page-slide <?php echo $i === $page ? 'active' : ''; ?>" 
+                                           data-page="<?php echo $i; ?>">
+                                            <?php echo $i; ?>
+                                        </a>
+                                    <?php endfor; ?>
+                                </div>
+                                
+                                <button class="pagination-btn next-btn" <?php echo $page >= $total_pages ? 'disabled' : ''; ?>>
                                     <i class="fas fa-chevron-right"></i>
-                                </a>
-                            <?php endif; ?>
+                                </button>
+                            </div>
+                            
+                            <div class="pagination-info">
+                                <span>Trang <?php echo $page; ?> / <?php echo $total_pages; ?></span>
+                                <span>(<?php echo $total_products; ?> sản phẩm)</span>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -375,6 +382,150 @@ $total_pages = ceil($total_products / $limit);
     </div>
 
     <script src="../assets/js/main.js"></script>
+    
+    <script>
+        // Pagination Slider
+        document.addEventListener('DOMContentLoaded', function() {
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const slides = document.querySelector('.pagination-slides');
+            const pageSlides = document.querySelectorAll('.page-slide');
+            
+            if (prevBtn && nextBtn && slides) {
+                prevBtn.addEventListener('click', function() {
+                    const currentPage = parseInt(document.querySelector('.page-slide.active').dataset.page);
+                    if (currentPage > 1) {
+                        const prevPage = currentPage - 1;
+                        window.location.href = updateUrlParameter('page', prevPage);
+                    }
+                });
+                
+                nextBtn.addEventListener('click', function() {
+                    const currentPage = parseInt(document.querySelector('.page-slide.active').dataset.page);
+                    const totalPages = pageSlides.length;
+                    if (currentPage < totalPages) {
+                        const nextPage = currentPage + 1;
+                        window.location.href = updateUrlParameter('page', nextPage);
+                    }
+                });
+            }
+            
+            // Auto scroll to active page in slider
+            if (slides && pageSlides.length > 0) {
+                const activeSlide = document.querySelector('.page-slide.active');
+                if (activeSlide) {
+                    activeSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }
+        });
+        
+        function updateUrlParameter(param, paramVal) {
+            const url = new URL(window.location);
+            url.searchParams.set(param, paramVal);
+            return url.toString();
+        }
+        
+        // Add to cart functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const addToCartBtns = document.querySelectorAll('.add-to-cart');
+            
+            addToCartBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productId;
+                    
+                    // Gửi AJAX request để thêm vào giỏ hàng
+                    fetch('../api/cart.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: 'add',
+                            product_id: productId,
+                            quantity: 1
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Hiển thị thông báo thành công
+                            showNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+                            
+                            // Cập nhật số lượng giỏ hàng
+                            updateCartCount();
+                        } else {
+                            showNotification(data.message || 'Có lỗi xảy ra!', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Có lỗi xảy ra khi thêm sản phẩm!', 'error');
+                    });
+                });
+            });
+        });
+        
+        function showNotification(message, type = 'info') {
+            // Tạo thông báo
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Thêm style cho notification
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Hiển thị notification
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        function updateCartCount() {
+            // Lấy số lượng giỏ hàng từ server
+            fetch('../api/cart.php?action=count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        cartCount.textContent = data.count;
+                        cartCount.style.display = data.count > 0 ? 'block' : 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+            });
+        }
+    </script>
     
     <style>
         .breadcrumb {
@@ -397,12 +548,24 @@ $total_pages = ceil($total_products / $limit);
             padding: var(--spacing-xl) 0;
         }
         
+        .filters-sidebar-wrapper {
+            position: sticky;
+            top: var(--spacing-xl);
+            height: fit-content;
+        }
+        
         .filters-sidebar {
             background: var(--white);
             border-radius: var(--radius-lg);
             padding: var(--spacing-xl);
             box-shadow: var(--shadow-sm);
             margin-bottom: var(--spacing-xl);
+            position: sticky;
+            top: var(--spacing-xl);
+        }
+        
+        .products-main-content {
+            padding-left: var(--spacing-lg);
         }
         
         .filters-sidebar h3 {
@@ -561,28 +724,183 @@ $total_pages = ceil($total_products / $limit);
             color: var(--primary-color);
         }
         
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-xl);
+        /* Products Grid - 2-3 sản phẩm mỗi hàng */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
         }
         
-        .page-btn {
-            padding: var(--spacing-sm) var(--spacing-md);
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .product-image {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-fast);
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-info {
+            padding: var(--spacing-lg);
+        }
+        
+        .product-title {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+        }
+        
+        .product-title a {
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+        
+        .product-title a:hover {
+            color: var(--cta-color);
+        }
+        
+        .product-brand {
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+        
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .price-current {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--cta-color);
+        }
+        
+        .price-old {
+            font-size: var(--font-size-sm);
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+        
+        /* Pagination Slider */
+        .pagination-slider {
+            margin-top: var(--spacing-xl);
+            text-align: center;
+        }
+        
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--primary-color);
+            background: var(--white);
+            color: var(--text-dark);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--cta-color);
+            color: var(--white);
+            border-color: var(--cta-color);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-slides {
+            display: flex;
+            gap: var(--spacing-xs);
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: var(--spacing-sm) 0;
+            max-width: 300px;
+        }
+        
+        .page-slide {
+            min-width: 40px;
+            height: 40px;
             border: 1px solid var(--primary-color);
             background: var(--white);
             color: var(--text-dark);
             text-decoration: none;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all var(--transition-fast);
+            font-weight: 500;
         }
         
-        .page-btn:hover,
-        .page-btn.active {
+        .page-slide:hover,
+        .page-slide.active {
             background: var(--cta-color);
             color: var(--white);
             border-color: var(--cta-color);
+            transform: scale(1.1);
+        }
+        
+        .pagination-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .pagination-info span {
+            display: block;
         }
         
         @media (max-width: 768px) {

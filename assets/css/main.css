@@ -7,7 +7,7 @@
 
 /* Import Google Fonts */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 /* CSS Variables - Màu sắc chủ đạo */
 
@@ -35,8 +35,8 @@
     --error-color: #F44336;
     --info-color: #2196F3;
     /* Typography */
-    --font-primary: 'Poppins', sans-serif;
-    --font-secondary: 'Playfair Display', serif;
+    --font-primary: 'Inter', sans-serif;
+    --font-secondary: 'Dancing Script', cursive;
     --font-size-base: 16px;
     --font-size-sm: 14px;
     --font-size-lg: 18px;

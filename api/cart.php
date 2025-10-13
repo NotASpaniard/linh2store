@@ -26,25 +26,58 @@ try {
     switch ($method) {
         case 'GET':
             // Lấy giỏ hàng
-            $stmt = $conn->prepare("
-                SELECT COUNT(*) as count 
-                FROM cart 
-                WHERE user_id = ?
-            ");
-            $stmt->execute([$user_id]);
-            $result = $stmt->fetch();
+            $action = $_GET['action'] ?? '';
             
-            echo json_encode([
-                'success' => true,
-                'count' => $result['count']
-            ]);
+            if ($action === 'count') {
+                // Chỉ trả về số lượng
+                $stmt = $conn->prepare("
+                    SELECT COUNT(*) as count 
+                    FROM cart 
+                    WHERE user_id = ?
+                ");
+                $stmt->execute([$user_id]);
+                $result = $stmt->fetch();
+                
+                echo json_encode([
+                    'success' => true,
+                    'count' => $result['count']
+                ]);
+            } else {
+                // Lấy chi tiết giỏ hàng
+                $stmt = $conn->prepare("
+                    SELECT c.*, p.name, p.price, p.sale_price, pi.image_url, b.name as brand_name
+                    FROM cart c
+                    LEFT JOIN products p ON c.product_id = p.id
+                    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
+                    LEFT JOIN brands b ON p.brand_id = b.id
+                    WHERE c.user_id = ?
+                    ORDER BY c.created_at DESC
+                ");
+                $stmt->execute([$user_id]);
+                $cart_items = $stmt->fetchAll();
+                
+                echo json_encode([
+                    'success' => true,
+                    'items' => $cart_items
+                ]);
+            }
             break;
             
         case 'POST':
             // Thêm vào giỏ hàng
-            $product_id = intval($_POST['product_id'] ?? 0);
-            $color_id = intval($_POST['color_id'] ?? 0) ?: null;
-            $quantity = intval($_POST['quantity'] ?? 1);
+            $input = json_decode(file_get_contents('php://input'), true);
+            $action = $input['action'] ?? '';
+            
+            if ($action === 'add') {
+                $product_id = intval($input['product_id'] ?? 0);
+                $color_id = intval($input['color_id'] ?? 0) ?: null;
+                $quantity = intval($input['quantity'] ?? 1);
+            } else {
+                // Fallback cho form data
+                $product_id = intval($_POST['product_id'] ?? 0);
+                $color_id = intval($_POST['color_id'] ?? 0) ?: null;
+                $quantity = intval($_POST['quantity'] ?? 1);
+            }
             
             if (!$product_id || $quantity < 1) {
                 throw new Exception('Thông tin không hợp lệ');

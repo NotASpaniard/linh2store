@@ -111,7 +111,7 @@ try {
                         
                         <a href="gio-hang/" class="cart-icon" title="Giỏ hàng">
                             <i class="fas fa-shopping-cart"></i>
-                            <span class="cart-count">0</span>
+                            <span class="cart-count" id="header-cart-count">0</span>
                         </a>
                     </div>
                 </div>
@@ -157,9 +157,10 @@ try {
                     <?php foreach ($featured_products as $product): ?>
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="<?php echo $product['image_url'] ?: 'assets/images/no-image.jpg'; ?>" 
+                                <img src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>" 
                                      alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                     data-src="<?php echo $product['image_url'] ?: 'assets/images/no-image.jpg'; ?>">
+                                     data-src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>"
+                                     loading="lazy">
                                 <div class="product-badge">Nổi bật</div>
                             </div>
                             <div class="product-info">
@@ -201,9 +202,10 @@ try {
                     <?php foreach ($new_products as $product): ?>
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="<?php echo $product['image_url'] ?: 'assets/images/no-image.jpg'; ?>" 
+                                <img src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>" 
                                      alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                     data-src="<?php echo $product['image_url'] ?: 'assets/images/no-image.jpg'; ?>">
+                                     data-src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>"
+                                     loading="lazy">
                                 <div class="product-badge">Mới</div>
                             </div>
                             <div class="product-info">
@@ -235,42 +237,34 @@ try {
     <!-- Features Section -->
     <section class="features">
         <div class="container">
-            <div class="row">
-                <div class="col-3">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-shipping-fast"></i>
-                        </div>
-                        <h3>Giao hàng nhanh</h3>
-                        <p>Giao hàng trong 24h tại TP.HCM</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
                     </div>
+                    <h3>Giao hàng nhanh</h3>
+                    <p>Giao hàng trong 24h tại TP.HCM</p>
                 </div>
-                <div class="col-3">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3>Chính hãng 100%</h3>
-                        <p>Cam kết sản phẩm chính hãng</p>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
+                    <h3>Chính hãng 100%</h3>
+                    <p>Cam kết sản phẩm chính hãng</p>
                 </div>
-                <div class="col-3">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-undo"></i>
-                        </div>
-                        <h3>Đổi trả dễ dàng</h3>
-                        <p>Đổi trả trong 7 ngày</p>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-undo"></i>
                     </div>
+                    <h3>Đổi trả dễ dàng</h3>
+                    <p>Đổi trả trong 7 ngày</p>
                 </div>
-                <div class="col-3">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-headset"></i>
-                        </div>
-                        <h3>Hỗ trợ 24/7</h3>
-                        <p>Hotline hỗ trợ khách hàng</p>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
                     </div>
+                    <h3>Hỗ trợ 24/7</h3>
+                    <p>Hotline hỗ trợ khách hàng</p>
                 </div>
             </div>
         </div>
@@ -329,6 +323,32 @@ try {
     </footer>
 
     <script src="assets/js/main.js"></script>
+    
+    <script>
+        // Cập nhật số lượng giỏ hàng khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+        
+        function updateCartCount() {
+            <?php if (isLoggedIn()): ?>
+            fetch('api/cart.php?action=count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartCount = document.getElementById('header-cart-count');
+                    if (cartCount) {
+                        cartCount.textContent = data.count;
+                        cartCount.style.display = data.count > 0 ? 'block' : 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+            });
+            <?php endif; ?>
+        }
+    </script>
     
     <style>
         /* Hero Section */
@@ -416,16 +436,31 @@ try {
             padding: var(--spacing-3xl) 0;
         }
         
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-xl);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
         .feature-card {
             text-align: center;
             padding: var(--spacing-xl);
-            background: var(--primary-color);
+            background: var(--white);
             border-radius: var(--radius-lg);
-            transition: transform var(--transition-normal);
+            transition: all var(--transition-fast);
+            border: 1px solid var(--primary-color);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         
         .feature-card:hover {
             transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--cta-color);
         }
         
         .feature-icon {
@@ -437,11 +472,13 @@ try {
         .feature-card h3 {
             color: var(--text-dark);
             margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-lg);
         }
         
         .feature-card p {
             color: var(--text-light);
             margin: 0;
+            font-size: var(--font-size-sm);
         }
         
         /* Social Links */

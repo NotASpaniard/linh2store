@@ -18,6 +18,12 @@ $recent_orders = [];
 $wishlist_count = 0;
 $cart_count = 0;
 
+// Kiểm tra user có tồn tại không
+if (!$user || !isset($user['id'])) {
+    header('Location: ../auth/dang-nhap.php');
+    exit();
+}
+
 try {
     $db = new Database();
     $conn = $db->getConnection();

@@ -132,8 +132,23 @@ linh2store/
 - **User Dashboard**: `http://localhost/linh2store/user/`
 - **Admin Dashboard**: `http://localhost/linh2store/admin/`
 
-### Trang bảo trì:
+### Trang bổ sung:
+- **Thương hiệu**: `http://localhost/linh2store/thuong-hieu/`
+- **Blog**: `http://localhost/linh2store/blog/`
+- **Liên hệ**: `http://localhost/linh2store/lien-he/`
 - **Bảo trì**: `http://localhost/linh2store/bao-tri.php`
+
+## 📊 Dữ liệu mẫu
+
+Website đã được tích hợp với **100 sản phẩm mẫu** từ 10 thương hiệu nổi tiếng:
+- MAC, Chanel, Dior, YSL, Tom Ford
+- NARS, Urban Decay, Fenty Beauty
+- Charlotte Tilbury, Pat McGrath
+
+### Hình ảnh placeholder:
+- Sử dụng Unsplash API cho hình ảnh sản phẩm
+- Placeholder services cho logo thương hiệu
+- Tự động tạo hình ảnh với màu sắc thương hiệu
 
 ## 🔧 Công nghệ sử dụng
 

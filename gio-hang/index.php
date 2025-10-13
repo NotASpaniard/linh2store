@@ -22,7 +22,7 @@ try {
     
     // Lấy giỏ hàng của user
     $stmt = $conn->prepare("
-        SELECT c.*, p.name, p.price, p.sale_price, p.image_url, b.name as brand_name, pc.color_name, pc.color_code
+        SELECT c.*, p.name, p.price, p.sale_price, pi.image_url, b.name as brand_name, pc.color_name, pc.color_code
         FROM cart c
         LEFT JOIN products p ON c.product_id = p.id
         LEFT JOIN brands b ON p.brand_id = b.id
@@ -128,8 +128,9 @@ try {
                             <?php foreach ($cart_items as $item): ?>
                                 <div class="cart-item" data-cart-id="<?php echo $item['id']; ?>">
                                     <div class="item-image">
-                                        <img src="<?php echo $item['image_url'] ?: '../assets/images/no-image.jpg'; ?>" 
-                                             alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                        <img src="<?php echo $item['image_url'] ?: 'https://via.placeholder.com/100x100/E3F2FD/EC407A?text=No+Image'; ?>" 
+                                             alt="<?php echo htmlspecialchars($item['name']); ?>"
+                                             loading="lazy">
                                     </div>
                                     
                                     <div class="item-info">
@@ -378,6 +379,63 @@ try {
                     shippingNotice.innerHTML = `<i class="fas fa-info-circle"></i> Mua thêm ${remaining.toLocaleString()}đ để được miễn phí ship`;
                 }
             }
+        }
+        
+        // Cập nhật số lượng giỏ hàng trong header
+        function updateCartCount() {
+            fetch('../api/cart.php?action=count')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        cartCount.textContent = data.count;
+                        cartCount.style.display = data.count > 0 ? 'block' : 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+            });
+        }
+        
+        // Hiển thị thông báo
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <div class="alert-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            alert.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                alert.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(alert);
+                }, 300);
+            }, 3000);
         }
     </script>
     
