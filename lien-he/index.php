@@ -365,7 +365,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="footer-section">
                     <h3>Liên hệ</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận 1, TP.HCM</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
                         <li><i class="fas fa-phone"></i> 1900 1234</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
@@ -373,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 Linh2Store. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2025 Linh2Store. ...</p>
             </div>
         </div>
     </footer>

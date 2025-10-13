@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 $brands = [];
 $featured_brands = [];
@@ -144,7 +145,7 @@ try {
                     <?php foreach ($featured_brands as $brand): ?>
                         <div class="brand-card">
                             <div class="brand-logo">
-                                <img src="<?php echo $brand['logo'] ?: 'https://via.placeholder.com/200x100/E3F2FD/EC407A?text=' . urlencode($brand['name']); ?>" 
+                                <img src="../<?php echo getBrandImage($brand['id']); ?>" 
                                      alt="<?php echo htmlspecialchars($brand['name']); ?>">
                             </div>
                             <div class="brand-info">
@@ -192,7 +193,7 @@ try {
                     
                     <div class="brand-item">
                         <div class="brand-item-logo">
-                            <img src="<?php echo $brand['logo'] ?: 'https://via.placeholder.com/80x40/E3F2FD/EC407A?text=' . urlencode(substr($brand['name'], 0, 2)); ?>" 
+                            <img src="../<?php echo getBrandImage($brand['id']); ?>" 
                                  alt="<?php echo htmlspecialchars($brand['name']); ?>">
                         </div>
                         <div class="brand-item-info">
@@ -302,7 +303,7 @@ try {
                 <div class="footer-section">
                     <h3>Liên hệ</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận 1, TP.HCM</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
                         <li><i class="fas fa-phone"></i> 1900 1234</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
@@ -310,7 +311,7 @@ try {
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 Linh2Store. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2025 Linh2Store. ...</p>
             </div>
         </div>
     </footer>

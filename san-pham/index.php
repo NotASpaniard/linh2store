@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 // Lấy tham số từ URL
 $page = max(1, intval($_GET['page'] ?? 1));
@@ -13,8 +14,8 @@ $limit = 12; // 2-3 sản phẩm mỗi hàng x 4 hàng = 8-12 sản phẩm
 $offset = ($page - 1) * $limit;
 
 $search = trim($_GET['search'] ?? '');
-$brand_id = intval($_GET['brand'] ?? 0);
-$category_id = intval($_GET['category'] ?? 0);
+$brand_name = trim($_GET['brand'] ?? '');
+$category_name = trim($_GET['category'] ?? '');
 $sort = $_GET['sort'] ?? 'newest';
 $min_price = floatval($_GET['min_price'] ?? 0);
 $max_price = floatval($_GET['max_price'] ?? 0);
@@ -38,14 +39,14 @@ try {
         $params[] = "%$search%";
     }
     
-    if ($brand_id) {
-        $where_conditions[] = "p.brand_id = ?";
-        $params[] = $brand_id;
+    if ($brand_name) {
+        $where_conditions[] = "b.name = ?";
+        $params[] = $brand_name;
     }
     
-    if ($category_id) {
-        $where_conditions[] = "p.category_id = ?";
-        $params[] = $category_id;
+    if ($category_name) {
+        $where_conditions[] = "c.name = ?";
+        $params[] = $category_name;
     }
     
     if ($min_price > 0) {
@@ -89,11 +90,10 @@ try {
     
     // Lấy sản phẩm
     $sql = "
-        SELECT p.*, b.name as brand_name, c.name as category_name, pi.image_url 
+        SELECT p.*, b.name as brand_name, c.name as category_name
         FROM products p 
         LEFT JOIN brands b ON p.brand_id = b.id 
         LEFT JOIN categories c ON p.category_id = c.id
-        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE $where_clause 
         ORDER BY $order_by 
         LIMIT $limit OFFSET $offset
@@ -103,13 +103,13 @@ try {
     $stmt->execute($params);
     $products = $stmt->fetchAll();
     
-    // Lấy danh sách thương hiệu
-    $stmt = $conn->prepare("SELECT id, name FROM brands WHERE status = 'active' ORDER BY name");
+    // Lấy danh sách thương hiệu (chỉ lấy tên duy nhất)
+    $stmt = $conn->prepare("SELECT DISTINCT name FROM brands WHERE status = 'active' ORDER BY name");
     $stmt->execute();
     $brands = $stmt->fetchAll();
     
-    // Lấy danh sách danh mục
-    $stmt = $conn->prepare("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name");
+    // Lấy danh sách danh mục (chỉ lấy tên duy nhất)
+    $stmt = $conn->prepare("SELECT DISTINCT name FROM categories WHERE status = 'active' ORDER BY name");
     $stmt->execute();
     $categories = $stmt->fetchAll();
     
@@ -203,7 +203,7 @@ $total_pages = ceil($total_products / $limit);
         <div class="container">
             <div class="row">
                 <!-- Sidebar Filters -->
-                <div class="col-3 filters-sidebar-wrapper">
+                <div class="filters-sidebar-wrapper">
                     <div class="filters-sidebar">
                         <h3>Bộ lọc</h3>
                         
@@ -221,13 +221,13 @@ $total_pages = ceil($total_products / $limit);
                             <h4>Thương hiệu</h4>
                             <div class="filter-options">
                                 <label class="checkbox-label">
-                                    <input type="radio" name="brand" value="" <?php echo !$brand_id ? 'checked' : ''; ?>>
+                                    <input type="radio" name="brand" value="" <?php echo !$brand_name ? 'checked' : ''; ?>>
                                     <span>Tất cả</span>
                                 </label>
                                 <?php foreach ($brands as $brand): ?>
                                     <label class="checkbox-label">
-                                        <input type="radio" name="brand" value="<?php echo $brand['id']; ?>" 
-                                               <?php echo $brand_id == $brand['id'] ? 'checked' : ''; ?>>
+                                        <input type="radio" name="brand" value="<?php echo htmlspecialchars($brand['name']); ?>" 
+                                               <?php echo $brand_name == $brand['name'] ? 'checked' : ''; ?>>
                                         <span><?php echo htmlspecialchars($brand['name']); ?></span>
                                     </label>
                                 <?php endforeach; ?>
@@ -239,13 +239,13 @@ $total_pages = ceil($total_products / $limit);
                             <h4>Danh mục</h4>
                             <div class="filter-options">
                                 <label class="checkbox-label">
-                                    <input type="radio" name="category" value="" <?php echo !$category_id ? 'checked' : ''; ?>>
+                                    <input type="radio" name="category" value="" <?php echo !$category_name ? 'checked' : ''; ?>>
                                     <span>Tất cả</span>
                                 </label>
                                 <?php foreach ($categories as $category): ?>
                                     <label class="checkbox-label">
-                                        <input type="radio" name="category" value="<?php echo $category['id']; ?>" 
-                                               <?php echo $category_id == $category['id'] ? 'checked' : ''; ?>>
+                                        <input type="radio" name="category" value="<?php echo htmlspecialchars($category['name']); ?>" 
+                                               <?php echo $category_name == $category['name'] ? 'checked' : ''; ?>>
                                         <span><?php echo htmlspecialchars($category['name']); ?></span>
                                     </label>
                                 <?php endforeach; ?>
@@ -258,7 +258,7 @@ $total_pages = ceil($total_products / $limit);
                             <div class="price-range">
                                 <input type="number" name="min_price" placeholder="Từ" value="<?php echo $min_price ?: ''; ?>">
                                 <span>-</span>
-                                <input type="number" name="min_price" placeholder="Đến" value="<?php echo $max_price ?: ''; ?>">
+                                <input type="number" name="max_price" placeholder="Đến" value="<?php echo $max_price ?: ''; ?>">
                             </div>
                         </div>
                         
@@ -267,7 +267,7 @@ $total_pages = ceil($total_products / $limit);
                 </div>
                 
                 <!-- Products List -->
-                <div class="col-9 products-main-content">
+                <div class="products-main-content">
                     <div class="products-header">
                         <div class="products-info">
                             <h2>Sản phẩm</h2>
@@ -303,9 +303,9 @@ $total_pages = ceil($total_products / $limit);
                             <?php foreach ($products as $product): ?>
                                 <div class="product-card">
                                     <div class="product-image">
-                                        <img src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>" 
+                                        <img src="../<?php echo getProductImage($product['id']); ?>" 
                                              alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                             data-src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/300x300/E3F2FD/EC407A?text=No+Image'; ?>"
+                                             data-src="../<?php echo getProductImage($product['id']); ?>"
                                              loading="lazy">
                                         <div class="product-actions">
                                             <button class="action-btn wishlist-btn" data-product-id="<?php echo $product['id']; ?>">
@@ -724,6 +724,190 @@ $total_pages = ceil($total_products / $limit);
             color: var(--primary-color);
         }
         
+        /* Layout chính */
+        .products-page {
+            padding: var(--spacing-xl) 0;
+        }
+        
+        .products-page .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+        
+        .products-page .row {
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: flex-start;
+        }
+        
+        /* Sidebar Filters - sát cạnh trái */
+        .filters-sidebar-wrapper {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: var(--spacing-xl);
+            height: fit-content;
+        }
+        
+        .filters-sidebar {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .filters-sidebar h3 {
+            margin: 0 0 var(--spacing-lg) 0;
+            color: var(--text-dark);
+            font-size: var(--font-size-lg);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: var(--spacing-sm);
+        }
+        
+        .filter-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .filter-group h4 {
+            margin: 0 0 var(--spacing-sm) 0;
+            color: var(--text-dark);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            transition: background-color var(--transition-fast);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .checkbox-label:hover {
+            background: var(--bg-light);
+        }
+        
+        .checkbox-label input[type="radio"] {
+            margin: 0;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-label span {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .price-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        
+        .price-range input {
+            flex: 1;
+            min-width: 80px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            box-sizing: border-box;
+        }
+        
+        .price-range span {
+            color: var(--text-light);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        /* Products Main Content - ở giữa */
+        .products-main-content {
+            flex: 1;
+            min-width: 0; /* Để tránh overflow */
+        }
+        
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .products-info h2 {
+            margin: 0 0 var(--spacing-xs) 0;
+            color: var(--text-dark);
+            font-size: var(--font-size-xl);
+        }
+        
+        .products-info p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .products-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+        
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .sort-controls label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        .sort-controls select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+        }
+        
+        .view-controls {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+        
+        .view-btn {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--primary-color);
+            background: var(--white);
+            color: var(--text-dark);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .view-btn:hover,
+        .view-btn.active {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+        
         /* Products Grid - 2-3 sản phẩm mỗi hàng */
         .products-grid {
             display: grid;
@@ -741,6 +925,61 @@ $total_pages = ceil($total_products / $limit);
         @media (min-width: 1200px) {
             .products-grid {
                 grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .products-page .row {
+                flex-direction: column;
+                gap: var(--spacing-lg);
+            }
+
+            .filters-sidebar-wrapper {
+                width: 100%;
+                position: static;
+            }
+
+            .filters-sidebar {
+                padding: var(--spacing-lg);
+            }
+
+            .products-header {
+                flex-direction: column;
+                gap: var(--spacing-lg);
+                align-items: stretch;
+            }
+
+            .products-controls {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+            }
+            
+            .price-range {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-xs);
+            }
+            
+            .price-range input {
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .price-range span {
+                text-align: center;
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
             }
         }
         

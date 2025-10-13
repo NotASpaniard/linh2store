@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 // Kiểm tra đăng nhập
 if (!isLoggedIn()) {
@@ -22,11 +23,10 @@ try {
     
     // Lấy giỏ hàng của user
     $stmt = $conn->prepare("
-        SELECT c.*, p.name, p.price, p.sale_price, pi.image_url, b.name as brand_name, pc.color_name, pc.color_code
+        SELECT c.*, p.name, p.price, p.sale_price, b.name as brand_name, pc.color_name, pc.color_code
         FROM cart c
         LEFT JOIN products p ON c.product_id = p.id
         LEFT JOIN brands b ON p.brand_id = b.id
-        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
         LEFT JOIN product_colors pc ON c.product_color_id = pc.id
         WHERE c.user_id = ?
         ORDER BY c.created_at DESC
@@ -128,7 +128,7 @@ try {
                             <?php foreach ($cart_items as $item): ?>
                                 <div class="cart-item" data-cart-id="<?php echo $item['id']; ?>">
                                     <div class="item-image">
-                                        <img src="<?php echo $item['image_url'] ?: 'https://via.placeholder.com/100x100/E3F2FD/EC407A?text=No+Image'; ?>" 
+                                        <img src="../<?php echo getProductImage($item['product_id']); ?>" 
                                              alt="<?php echo htmlspecialchars($item['name']); ?>"
                                              loading="lazy">
                                     </div>
@@ -197,6 +197,13 @@ try {
                                 <i class="fas fa-trash"></i>
                                 Xóa tất cả
                             </button>
+                            
+                            <?php if (!empty($cart_items)): ?>
+                                <a href="../thanh-toan/" class="btn btn-primary">
+                                    <i class="fas fa-credit-card"></i>
+                                    Thanh toán
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                     

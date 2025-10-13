@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 $product_id = intval($_GET['id'] ?? 0);
 $product = null;
@@ -59,10 +60,9 @@ try {
     
     // Lấy sản phẩm liên quan
     $stmt = $conn->prepare("
-        SELECT p.*, b.name as brand_name, pi.image_url 
+        SELECT p.*, b.name as brand_name
         FROM products p 
-        LEFT JOIN brands b ON p.brand_id = b.id 
-        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_primary = 1
+        LEFT JOIN brands b ON p.brand_id = b.id
         WHERE p.category_id = ? AND p.id != ? AND p.status = 'active'
         ORDER BY p.created_at DESC 
         LIMIT 4
@@ -174,7 +174,7 @@ try {
                     <!-- Product Images -->
                     <div class="product-images">
                         <div class="main-image">
-                            <img src="<?php echo $product_images[0]['image_url'] ?? '../assets/images/no-image.jpg'; ?>" 
+                            <img src="../<?php echo getProductImage($product['id']); ?>" 
                                  alt="<?php echo htmlspecialchars($product['name']); ?>" 
                                  id="main-product-image">
                         </div>
@@ -182,10 +182,10 @@ try {
                         <?php if (count($product_images) > 1): ?>
                             <div class="thumbnail-images">
                                 <?php foreach ($product_images as $index => $image): ?>
-                                    <img src="<?php echo $image['image_url']; ?>" 
+                                    <img src="../<?php echo getProductImage($product['id']); ?>" 
                                          alt="Hình ảnh <?php echo $index + 1; ?>"
                                          class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>"
-                                         onclick="changeMainImage('<?php echo $image['image_url']; ?>')">
+                                         onclick="changeMainImage('../<?php echo getProductImage($product['id']); ?>')">
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -373,7 +373,7 @@ try {
                     <?php foreach ($related_products as $related): ?>
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="<?php echo $related['image_url'] ?: '../assets/images/no-image.jpg'; ?>" 
+                                <img src="../<?php echo getProductImage($related['id']); ?>" 
                                      alt="<?php echo htmlspecialchars($related['name']); ?>">
                             </div>
                             <div class="product-info">

@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 $posts = [];
 $featured_posts = [];
@@ -218,7 +219,7 @@ if (empty($posts)) {
                 <?php foreach ($featured_posts as $index => $post): ?>
                     <div class="featured-post <?php echo $index === 0 ? 'main-post' : ''; ?>">
                         <div class="post-image">
-                            <img src="<?php echo $post['featured_image']; ?>" 
+                            <img src="../<?php echo getProductImage($post['id']); ?>" 
                                  alt="<?php echo htmlspecialchars($post['title']); ?>">
                             <div class="post-category"><?php echo htmlspecialchars($post['category']); ?></div>
                         </div>
@@ -260,7 +261,7 @@ if (empty($posts)) {
                             <?php foreach ($posts as $post): ?>
                                 <article class="post-card">
                                     <div class="post-image">
-                                        <img src="<?php echo $post['featured_image']; ?>" 
+                                        <img src="../<?php echo getProductImage($post['id']); ?>" 
                                              alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <div class="post-category"><?php echo htmlspecialchars($post['category']); ?></div>
                                     </div>
@@ -313,7 +314,7 @@ if (empty($posts)) {
                             <div class="recent-posts">
                                 <?php foreach (array_slice($posts, 0, 5) as $post): ?>
                                     <div class="recent-post">
-                                        <img src="<?php echo $post['featured_image']; ?>" 
+                                        <img src="../<?php echo getProductImage($post['id']); ?>" 
                                              alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <div class="recent-post-info">
                                             <h4><?php echo htmlspecialchars($post['title']); ?></h4>
@@ -378,7 +379,7 @@ if (empty($posts)) {
                 <div class="footer-section">
                     <h3>Liên hệ</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận 1, TP.HCM</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
                         <li><i class="fas fa-phone"></i> 1900 1234</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
@@ -386,7 +387,7 @@ if (empty($posts)) {
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 Linh2Store. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2025 Linh2Store. ...</p>
             </div>
         </div>
     </footer>
