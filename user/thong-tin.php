@@ -12,6 +12,57 @@ $user = $_SESSION['user'];
 $success_message = '';
 $error_message = '';
 
+// Xử lý cập nhật avatar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_avatar') {
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = '../images/avatars/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        $file_extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        
+        if (in_array(strtolower($file_extension), $allowed_extensions)) {
+            $new_filename = 'avatar_' . $user['id'] . '_' . time() . '.' . $file_extension;
+            $upload_path = $upload_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_path)) {
+                try {
+                    $db = new Database();
+                    $conn = $db->getConnection();
+                    
+                    // Xóa avatar cũ nếu có
+                    if (!empty($user['avatar'])) {
+                        $old_avatar_path = $upload_dir . $user['avatar'];
+                        if (file_exists($old_avatar_path)) {
+                            unlink($old_avatar_path);
+                        }
+                    }
+                    
+                    // Cập nhật avatar mới
+                    $stmt = $conn->prepare("UPDATE users SET avatar = ?, updated_at = NOW() WHERE id = ?");
+                    $stmt->execute([$new_filename, $user['id']]);
+                    
+                    // Cập nhật session
+                    $_SESSION['user']['avatar'] = $new_filename;
+                    $user['avatar'] = $new_filename;
+                    
+                    $success_message = 'Cập nhật avatar thành công!';
+                } catch (Exception $e) {
+                    $error_message = 'Có lỗi xảy ra khi cập nhật avatar: ' . $e->getMessage();
+                }
+            } else {
+                $error_message = 'Không thể tải lên file avatar';
+            }
+        } else {
+            $error_message = 'Định dạng file không được hỗ trợ. Chỉ chấp nhận JPG, PNG, GIF';
+        }
+    } else {
+        $error_message = 'Vui lòng chọn file avatar';
+    }
+}
+
 // Xử lý cập nhật thông tin
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
     $full_name = trim($_POST['full_name']);
@@ -174,6 +225,36 @@ try {
         .avatar-email {
             font-size: var(--font-size-base);
             opacity: 0.9;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-full);
+        }
+        
+        .avatar-form {
+            margin-top: var(--spacing-md);
+        }
+        
+        .avatar-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: var(--font-size-sm);
+        }
+        
+        .avatar-upload-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
         }
         
         .profile-form {
@@ -400,10 +481,26 @@ try {
         <div class="profile-card">
             <div class="profile-avatar">
                 <div class="avatar">
-                    <i class="fas fa-user"></i>
+                    <?php if (!empty($user['avatar']) && file_exists("../images/avatars/" . $user['avatar'])): ?>
+                        <img src="../images/avatars/<?php echo $user['avatar']; ?>" alt="Avatar">
+                    <?php else: ?>
+                        <i class="fas fa-user"></i>
+                    <?php endif; ?>
                 </div>
                 <div class="avatar-name"><?php echo htmlspecialchars($user['full_name'] ?? $user['name']); ?></div>
                 <div class="avatar-email"><?php echo htmlspecialchars($user['email']); ?></div>
+                
+                <!-- Avatar Upload Form -->
+                <form method="POST" enctype="multipart/form-data" class="avatar-form">
+                    <input type="hidden" name="action" value="update_avatar">
+                    <div class="avatar-upload">
+                        <input type="file" id="avatar" name="avatar" accept="image/*" style="display: none;">
+                        <label for="avatar" class="avatar-upload-btn">
+                            <i class="fas fa-camera"></i>
+                            Cập nhật avatar
+                        </label>
+                    </div>
+                </form>
             </div>
             
             <form method="POST" class="profile-form">
@@ -546,6 +643,34 @@ try {
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
+        
+        // Avatar upload
+        document.getElementById('avatar').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (file.size > maxSize) {
+                    alert('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
+                    return;
+                }
+                
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Định dạng file không được hỗ trợ. Chỉ chấp nhận JPG, PNG, GIF');
+                    return;
+                }
+                
+                // Show loading
+                const btn = document.querySelector('.avatar-upload-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải lên...';
+                btn.style.pointerEvents = 'none';
+                
+                // Submit form
+                document.querySelector('.avatar-form').submit();
+            }
+        });
     </script>
 </body>
 </html>

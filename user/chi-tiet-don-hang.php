@@ -108,9 +108,13 @@ if (!$order) {
                     </div>
                     
                     <div class="user-actions">
-                        <a href="index.php" class="user-icon" title="Tài khoản">
+                    <a href="index.php" class="user-icon" title="Tài khoản">
+                        <?php if (!empty($user['avatar']) && file_exists("../images/avatars/" . $user['avatar'])): ?>
+                            <img src="../images/avatars/<?php echo $user['avatar']; ?>" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                        <?php else: ?>
                             <i class="fas fa-user"></i>
-                        </a>
+                        <?php endif; ?>
+                    </a>
                         
                         <a href="../thanh-toan/" class="cart-icon" title="Thanh toán">
                             <i class="fas fa-shopping-cart"></i>
@@ -174,22 +178,22 @@ if (!$order) {
                                     <div class="order-item">
                                         <div class="item-image">
                                             <img src="../<?php echo getProductImage($item['product_id']); ?>" 
-                                                 alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                                 alt="<?php echo htmlspecialchars($item['product_name'] ?? $item['name'] ?? 'Sản phẩm'); ?>">
                                         </div>
                                         
                                         <div class="item-info">
-                                            <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                                            <p class="item-brand"><?php echo htmlspecialchars($item['brand_name']); ?></p>
+                                            <h3><?php echo htmlspecialchars($item['product_name'] ?? $item['name'] ?? 'Sản phẩm'); ?></h3>
+                                            <p class="item-brand"><?php echo htmlspecialchars($item['brand_name'] ?? ''); ?></p>
                                             
-                                            <?php if ($item['color_name']): ?>
+                                            <?php if (!empty($item['color_name'])): ?>
                                                 <div class="item-color">
                                                     <span>Màu:</span>
-                                                    <div class="color-swatch" style="background-color: <?php echo $item['color_code']; ?>;"></div>
+                                                    <div class="color-swatch" style="background-color: <?php echo $item['color_code'] ?? '#ccc'; ?>;"></div>
                                                     <span><?php echo htmlspecialchars($item['color_name']); ?></span>
                                                 </div>
                                             <?php endif; ?>
                                             
-                                            <?php if ($item['sku']): ?>
+                                            <?php if (!empty($item['sku'])): ?>
                                                 <p class="item-sku">SKU: <?php echo htmlspecialchars($item['sku']); ?></p>
                                             <?php endif; ?>
                                         </div>
@@ -199,8 +203,8 @@ if (!$order) {
                                         </div>
                                         
                                         <div class="item-price">
-                                            <span class="unit-price"><?php echo number_format($item['price'], 0, ',', '.'); ?>đ</span>
-                                            <span class="total-price"><?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?>đ</span>
+                                            <span class="unit-price"><?php echo number_format($item['product_price'] ?? 0, 0, ',', '.'); ?>đ</span>
+                                            <span class="total-price"><?php echo number_format(($item['product_price'] ?? 0) * $item['quantity'], 0, ',', '.'); ?>đ</span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

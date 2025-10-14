@@ -136,9 +136,13 @@ try {
                     <div class="user-sidebar">
                         <div class="user-info">
                             <div class="user-avatar">
-                                <i class="fas fa-user"></i>
+                                <?php if (!empty($user['avatar']) && file_exists("../images/avatars/" . $user['avatar'])): ?>
+                                    <img src="../images/avatars/<?php echo $user['avatar']; ?>" alt="Avatar">
+                                <?php else: ?>
+                                    <i class="fas fa-user"></i>
+                                <?php endif; ?>
                             </div>
-                            <h3><?php echo htmlspecialchars($user['full_name']); ?></h3>
+                            <h3><?php echo htmlspecialchars($user['full_name'] ?? $user['name']); ?></h3>
                             <p><?php echo htmlspecialchars($user['email']); ?></p>
                         </div>
                         
@@ -175,7 +179,7 @@ try {
                 <!-- Main Content -->
                 <div class="col-9">
                     <div class="dashboard-content">
-                        <h1>Chào mừng trở lại, <?php echo htmlspecialchars($user['full_name']); ?>!</h1>
+                        <h1>Chào mừng trở lại, <?php echo htmlspecialchars($user['full_name'] ?? $user['name']); ?>!</h1>
                         
                         <!-- Stats Cards -->
                         <div class="stats-grid">
@@ -354,7 +358,7 @@ try {
                                     </div>
                                     <div class="info-content">
                                         <h4>Ngày sinh</h4>
-                                        <p><?php echo $user['birthday'] ? date('d/m/Y', strtotime($user['birthday'])) : 'Chưa cập nhật'; ?></p>
+                                        <p><?php echo isset($user['birthday']) && $user['birthday'] ? date('d/m/Y', strtotime($user['birthday'])) : 'Chưa cập nhật'; ?></p>
                                     </div>
                                 </div>
                                 
@@ -370,7 +374,7 @@ try {
                                             'female' => 'Nữ',
                                             'other' => 'Khác'
                                         ];
-                                        echo $gender_labels[$user['gender']] ?? 'Chưa cập nhật';
+                                        echo isset($user['gender']) ? ($gender_labels[$user['gender']] ?? 'Chưa cập nhật') : 'Chưa cập nhật';
                                         ?></p>
                                     </div>
                                 </div>
@@ -427,6 +431,14 @@ try {
             margin: 0 auto var(--spacing-md);
             font-size: var(--font-size-2xl);
             color: var(--white);
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-full);
         }
         
         .user-info h3 {

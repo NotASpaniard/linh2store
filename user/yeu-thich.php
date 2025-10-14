@@ -164,6 +164,17 @@ $wishlist_count = count($wishlist_items);
             transition: transform var(--transition-fast);
         }
         
+        .no-image {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: var(--font-size-2xl);
+        }
+        
         .wishlist-item:hover .product-image img {
             transform: scale(1.05);
         }
@@ -411,9 +422,13 @@ $wishlist_count = count($wishlist_items);
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count">0</span>
                     </a>
-                    <a href="index.php" class="user-icon" title="Tài khoản">
-                        <i class="fas fa-user"></i>
-                    </a>
+                        <a href="index.php" class="user-icon" title="Tài khoản">
+                            <?php if (!empty($user['avatar']) && file_exists("../images/avatars/" . $user['avatar'])): ?>
+                                <img src="../images/avatars/<?php echo $user['avatar']; ?>" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                            <?php else: ?>
+                                <i class="fas fa-user"></i>
+                            <?php endif; ?>
+                        </a>
                 </div>
             </div>
         </div>
@@ -475,7 +490,13 @@ $wishlist_count = count($wishlist_items);
                 <?php foreach ($wishlist_items as $item): ?>
                     <div class="wishlist-item" data-product-id="<?php echo $item['id']; ?>">
                         <div class="product-image">
-                            <img src="../images/<?php echo $item['image']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                            <?php if ($item['image'] && file_exists("../images/" . $item['image'])): ?>
+                                <img src="../images/<?php echo $item['image']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                            <?php else: ?>
+                                <div class="no-image">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            <?php endif; ?>
                             <div class="product-badge <?php echo !$item['in_stock'] ? 'out-of-stock' : ''; ?>">
                                 <?php echo $item['in_stock'] ? 'Còn hàng' : 'Hết hàng'; ?>
                             </div>

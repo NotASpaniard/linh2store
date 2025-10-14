@@ -311,7 +311,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <span class="cart-count">0</span>
                     </a>
                     <a href="index.php" class="user-icon" title="Tài khoản">
-                        <i class="fas fa-user"></i>
+                        <?php if (!empty($user['avatar']) && file_exists("../images/avatars/" . $user['avatar'])): ?>
+                            <img src="../images/avatars/<?php echo $user['avatar']; ?>" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                        <?php else: ?>
+                            <i class="fas fa-user"></i>
+                        <?php endif; ?>
                     </a>
                 </div>
             </div>
