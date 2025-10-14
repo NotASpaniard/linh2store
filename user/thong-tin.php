@@ -71,8 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $address = trim($_POST['address']);
     $city = trim($_POST['city']);
     $district = trim($_POST['district']);
-    $birthday = $_POST['birthday'];
-    $gender = $_POST['gender'];
+    $birthday = !empty($_POST['birthday']) ? $_POST['birthday'] : null;
+    $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
     
     // Validation
     $errors = [];
@@ -103,6 +103,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     if (empty($district)) {
         $errors[] = 'Quận/Huyện không được để trống';
+    }
+    
+    // Validation cho birthday (nếu có)
+    if (!empty($birthday)) {
+        $birthday_timestamp = strtotime($birthday);
+        if ($birthday_timestamp === false) {
+            $errors[] = 'Ngày sinh không hợp lệ';
+        } elseif ($birthday_timestamp > time()) {
+            $errors[] = 'Ngày sinh không thể là ngày tương lai';
+        }
+    }
+    
+    // Validation cho gender (nếu có)
+    if (!empty($gender) && !in_array($gender, ['male', 'female', 'other'])) {
+        $errors[] = 'Giới tính không hợp lệ';
     }
     
     if (empty($errors)) {
@@ -152,10 +167,14 @@ try {
     $user_data = $stmt->fetch();
     
     if ($user_data) {
+        // Merge dữ liệu từ database vào session user
         $user = array_merge($user, $user_data);
+        $_SESSION['user'] = $user; // Cập nhật session
     }
 } catch (Exception $e) {
-    $error_message = 'Không thể tải thông tin người dùng';
+    // Không hiển thị lỗi nếu không lấy được dữ liệu từ database
+    // Sử dụng dữ liệu từ session
+    error_log("Không thể tải thông tin người dùng: " . $e->getMessage());
 }
 ?>
 
