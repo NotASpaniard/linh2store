@@ -108,7 +108,7 @@ try {
                             <i class="fas fa-user"></i>
                         </a>
                         
-                        <a href="../gio-hang/" class="cart-icon" title="Giỏ hàng">
+                        <a href="../thanh-toan/" class="cart-icon" title="Thanh toán">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count"><?php echo $cart_count; ?></span>
                         </a>
@@ -147,18 +147,14 @@ try {
                                 <i class="fas fa-tachometer-alt"></i>
                                 Tổng quan
                             </a>
-                            <a href="don-hang.php" class="nav-item">
-                                <i class="fas fa-shopping-bag"></i>
-                                Đơn hàng
-                            </a>
                             <a href="yeu-thich.php" class="nav-item">
                                 <i class="fas fa-heart"></i>
                                 Yêu thích
                                 <span class="badge"><?php echo $wishlist_count; ?></span>
                             </a>
-                            <a href="dia-chi.php" class="nav-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                Địa chỉ
+                            <a href="vi-tri-don-hang.php" class="nav-item">
+                                <i class="fas fa-truck"></i>
+                                Vị trí đơn hàng
                             </a>
                             <a href="thong-tin.php" class="nav-item">
                                 <i class="fas fa-user-edit"></i>
@@ -228,7 +224,6 @@ try {
                         <div class="dashboard-section">
                             <div class="section-header">
                                 <h2>Đơn hàng gần đây</h2>
-                                <a href="don-hang.php" class="btn btn-outline">Xem tất cả</a>
                             </div>
                             
                             <?php if (!empty($recent_orders)): ?>
@@ -291,16 +286,104 @@ try {
                                     <p>Xem sản phẩm đã lưu</p>
                                 </a>
                                 
-                                <a href="../gio-hang/" class="action-card">
+                                <a href="../thanh-toan/" class="action-card">
                                     <i class="fas fa-shopping-cart"></i>
                                     <h4>Giỏ hàng</h4>
                                     <p>Hoàn tất đơn hàng</p>
                                 </a>
                                 
-                                <a href="thong-tin.php" class="action-card">
-                                    <i class="fas fa-user-edit"></i>
-                                    <h4>Cập nhật thông tin</h4>
-                                    <p>Chỉnh sửa thông tin cá nhân</p>
+                                <a href="vi-tri-don-hang.php" class="action-card">
+                                    <i class="fas fa-truck"></i>
+                                    <h4>Vị trí đơn hàng</h4>
+                                    <p>Theo dõi trạng thái vận chuyển</p>
+                                </a>
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Information Section -->
+                        <div class="dashboard-section">
+                            <div class="section-header">
+                                <h2>Thông tin cá nhân</h2>
+                            </div>
+                            
+                            <div class="personal-info-grid">
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Họ tên</h4>
+                                        <p><?php echo htmlspecialchars($user['full_name'] ?? $user['name']); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Email</h4>
+                                        <p><?php echo htmlspecialchars($user['email']); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Số điện thoại</h4>
+                                        <p><?php echo htmlspecialchars($user['phone'] ?? 'Chưa cập nhật'); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Địa chỉ</h4>
+                                        <p><?php echo htmlspecialchars($user['address'] ?? 'Chưa cập nhật'); ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Ngày sinh</h4>
+                                        <p><?php echo $user['birthday'] ? date('d/m/Y', strtotime($user['birthday'])) : 'Chưa cập nhật'; ?></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-icon">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <h4>Giới tính</h4>
+                                        <p><?php 
+                                        $gender_labels = [
+                                            'male' => 'Nam',
+                                            'female' => 'Nữ',
+                                            'other' => 'Khác'
+                                        ];
+                                        echo $gender_labels[$user['gender']] ?? 'Chưa cập nhật';
+                                        ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-actions">
+                                <a href="thong-tin.php" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                    Cập nhật thông tin
+                                </a>
+                                <a href="doi-mat-khau.php" class="btn btn-outline">
+                                    <i class="fas fa-key"></i>
+                                    Đổi mật khẩu
                                 </a>
                             </div>
                         </div>
@@ -583,6 +666,80 @@ try {
             background: var(--secondary-color);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
+        }
+        
+        /* CSS cho thông tin cá nhân */
+        .personal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .info-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            transition: all var(--transition-fast);
+        }
+        
+        .info-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+        
+        .info-content h4 {
+            margin: 0 0 var(--spacing-xs) 0;
+            color: var(--text-dark);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+        }
+        
+        .info-content p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .info-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+        }
+        
+        .info-actions .btn {
+            min-width: 200px;
+        }
+        
+        @media (max-width: 768px) {
+            .personal-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-actions {
+                flex-direction: column;
+            }
+            
+            .info-actions .btn {
+                min-width: auto;
+            }
         }
         
         .action-card i {

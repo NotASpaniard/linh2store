@@ -292,7 +292,7 @@ if (!$order) {
                     <a href="../lien-he/" class="nav-link">Liên hệ</a>
                 </nav>
                 <div class="header-actions">
-                    <a href="../gio-hang/" class="cart-btn">
+                    <a href="../" class="cart-btn">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count">0</span>
                     </a>

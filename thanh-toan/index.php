@@ -53,7 +53,7 @@ try {
 
 // Nếu giỏ hàng trống, chuyển về trang giỏ hàng
 if (empty($cart_items)) {
-    header('Location: ../gio-hang/');
+    header('Location: ../');
     exit();
 }
 ?>

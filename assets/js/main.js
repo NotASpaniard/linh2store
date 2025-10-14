@@ -230,7 +230,7 @@ function removeFromCart(cartItemId) {
             if (data.success) {
                 updateCartCount();
                 // Reload trang giỏ hàng nếu đang ở trang đó
-                if (window.location.pathname.includes('gio-hang')) {
+                if (window.location.pathname.includes('thanh-toan')) {
                     location.reload();
                 }
             } else {

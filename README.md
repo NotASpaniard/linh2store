@@ -40,7 +40,6 @@ linh2store/
 ├── san-pham/
 │   ├── index.php            # Danh sách sản phẩm
 │   └── chi-tiet.php         # Chi tiết sản phẩm
-├── gio-hang/
 │   └── index.php            # Trang giỏ hàng
 ├── user/
 │   └── index.php            # User dashboard
@@ -122,7 +121,7 @@ linh2store/
 ### Trang chính:
 - **Trang chủ**: `http://localhost/linh2store/`
 - **Sản phẩm**: `http://localhost/linh2store/san-pham/`
-- **Giỏ hàng**: `http://localhost/linh2store/gio-hang/`
+- **Thanh toán**: `http://localhost/linh2store/thanh-toan/`
 
 ### Xác thực:
 - **Đăng nhập**: `http://localhost/linh2store/auth/dang-nhap.php`

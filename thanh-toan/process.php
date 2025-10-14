@@ -47,7 +47,7 @@ if (!empty($phone) && !preg_match('/^[0-9]{10,11}$/', $phone)) {
 
 if (!empty($errors)) {
     $_SESSION['checkout_errors'] = $errors;
-    header('Location: index.php');
+    header('Location: ../thanh-toan/');
     exit();
 }
 
@@ -165,7 +165,7 @@ try {
     }
     
     $_SESSION['checkout_error'] = $e->getMessage();
-    header('Location: index.php');
+    header('Location: ../thanh-toan/');
     exit();
 }
 ?>

@@ -34,7 +34,7 @@ if ($order_id) {
         $order = $stmt->fetch();
         
         if (!$order) {
-            header('Location: don-hang.php');
+            header('Location: index.php');
             exit();
         }
         
@@ -57,7 +57,7 @@ if ($order_id) {
 }
 
 if (!$order) {
-    header('Location: don-hang.php');
+    header('Location: index.php');
     exit();
 }
 ?>
@@ -112,7 +112,7 @@ if (!$order) {
                             <i class="fas fa-user"></i>
                         </a>
                         
-                        <a href="../gio-hang/" class="cart-icon" title="Giỏ hàng">
+                        <a href="../thanh-toan/" class="cart-icon" title="Thanh toán">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count">0</span>
                         </a>
@@ -129,7 +129,7 @@ if (!$order) {
             <span>/</span>
             <a href="index.php">Tài khoản</a>
             <span>/</span>
-            <a href="don-hang.php">Đơn hàng</a>
+            <a href="index.php">Tổng quan</a>
             <span>/</span>
             <span>Chi tiết</span>
         </div>
@@ -312,7 +312,7 @@ if (!$order) {
                                     </button>
                                 <?php endif; ?>
                                 
-                                <a href="don-hang.php" class="btn btn-secondary">
+                                <a href="index.php" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left"></i>
                                     Quay lại
                                 </a>
@@ -371,7 +371,7 @@ if (!$order) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = '../gio-hang/';
+                        window.location.href = '../thanh-toan/';
                     } else {
                         alert(data.message || 'Có lỗi xảy ra');
                     }

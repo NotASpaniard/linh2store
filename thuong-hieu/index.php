@@ -103,7 +103,7 @@ try {
                             </a>
                         <?php endif; ?>
                         
-                        <a href="../gio-hang/" class="cart-icon" title="Giỏ hàng">
+                        <a href="../thanh-toan/" class="cart-icon" title="Thanh toán">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count">0</span>
                         </a>
