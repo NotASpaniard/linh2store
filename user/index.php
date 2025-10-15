@@ -423,14 +423,15 @@ try {
         .user-avatar {
             width: 80px;
             height: 80px;
-            background: var(--primary-color);
+            background: #e3f2fd;
+            border: 2px solid var(--primary-color);
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto var(--spacing-md);
             font-size: var(--font-size-2xl);
-            color: var(--white);
+            color: var(--primary-color);
             overflow: hidden;
         }
         
@@ -531,13 +532,14 @@ try {
         .stat-icon {
             width: 60px;
             height: 60px;
-            background: var(--primary-color);
+            background: #e3f2fd;
+            border: 2px solid var(--primary-color);
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: var(--font-size-xl);
-            color: var(--white);
+            color: var(--primary-color);
         }
         
         .stat-info h3 {

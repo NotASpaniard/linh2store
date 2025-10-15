@@ -715,8 +715,7 @@ if (!$order) {
         }
         
         .btn-outline:hover {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         .btn-secondary {
@@ -726,8 +725,7 @@ if (!$order) {
         }
         
         .btn-secondary:hover {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         @media (max-width: 768px) {

@@ -72,15 +72,33 @@ try {
     
     // Lấy đánh giá
     $stmt = $conn->prepare("
-        SELECT r.*, u.full_name, u.username 
-        FROM reviews r 
-        LEFT JOIN users u ON r.user_id = u.id 
-        WHERE r.product_id = ? AND r.status = 'approved'
-        ORDER BY r.created_at DESC 
+        SELECT pr.*, u.full_name, u.username 
+        FROM product_reviews pr 
+        LEFT JOIN users u ON pr.user_id = u.id 
+        WHERE pr.product_id = ? AND pr.is_approved = 1
+        ORDER BY pr.created_at DESC 
         LIMIT 10
     ");
     $stmt->execute([$product_id]);
     $reviews = $stmt->fetchAll();
+    
+    // Lấy thông tin rating tổng hợp
+    $stmt = $conn->prepare("SELECT * FROM product_ratings WHERE product_id = ?");
+    $stmt->execute([$product_id]);
+    $product_rating = $stmt->fetch();
+    
+    // Kiểm tra quyền viết đánh giá (chỉ cho user đã đăng nhập)
+    $can_review = false;
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as has_purchased 
+            FROM order_items oi 
+            JOIN orders o ON oi.order_id = o.id 
+            WHERE o.user_id = ? AND oi.product_id = ? AND o.status = 'delivered'
+        ");
+        $stmt->execute([$_SESSION['user_id'], $product_id]);
+        $can_review = $stmt->fetch()['has_purchased'] > 0;
+    }
     
 } catch (Exception $e) {
     header('Location: index.php');
@@ -220,6 +238,18 @@ try {
                             <?php endif; ?>
                         </div>
                         
+                        <?php if ($product_rating): ?>
+                        <div class="product-rating-summary">
+                            <div class="rating-stars">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="fas fa-star<?php echo $i <= $product_rating['average_rating'] ? '' : '-o'; ?>"></i>
+                                <?php endfor; ?>
+                                <span class="rating-number"><?php echo number_format($product_rating['average_rating'], 1); ?></span>
+                                <span class="rating-count">(<?php echo $product_rating['total_reviews']; ?> đánh giá)</span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                        
                         <?php if ($product['short_description']): ?>
                             <div class="product-short-desc">
                                 <p><?php echo htmlspecialchars($product['short_description']); ?></p>
@@ -357,6 +387,27 @@ try {
                             </div>
                         <?php else: ?>
                             <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                        <?php endif; ?>
+                        
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <?php if ($can_review): ?>
+                                <div style="margin-top: 20px; text-align: center;">
+                                    <a href="danh-gia.php?id=<?php echo $product_id; ?>" class="btn btn-primary">
+                                        <i class="fas fa-star"></i> Viết đánh giá
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <div style="margin-top: 20px; text-align: center; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                                    <i class="fas fa-info-circle" style="color: #6c757d;"></i>
+                                    <p style="margin: 5px 0; color: #6c757d;">
+                                        Bạn cần mua và nhận hàng trước khi đánh giá
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div style="margin-top: 20px; text-align: center;">
+                                <p>Bạn cần <a href="../auth/dang-nhap.php">đăng nhập</a> để viết đánh giá</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -536,6 +587,33 @@ try {
             margin-bottom: var(--spacing-lg);
         }
         
+        .product-rating-summary {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .rating-stars i {
+            color: #ffc107;
+            font-size: 1.1em;
+        }
+        
+        .rating-number {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .rating-count {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+        
         .price-current {
             font-size: var(--font-size-2xl);
             font-weight: 700;
@@ -706,7 +784,8 @@ try {
         
         .review-item {
             padding: var(--spacing-lg);
-            background: var(--primary-color);
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
             border-radius: var(--radius-md);
         }
         
@@ -739,6 +818,48 @@ try {
             text-align: center;
             margin-bottom: var(--spacing-xl);
             color: var(--text-dark);
+        }
+        
+        .related-products .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .related-products .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .related-products .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .related-products .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .related-products .product-info {
+            padding: 15px;
+        }
+        
+        .related-products .product-title {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .related-products .product-price {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--cta-color);
         }
         
         @media (max-width: 768px) {

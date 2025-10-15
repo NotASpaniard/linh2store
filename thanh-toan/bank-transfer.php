@@ -408,7 +408,7 @@ if (!$order) {
                     </div>
                 </div>
                 
-                <div style="background: var(--primary-color); color: var(--white); padding: var(--spacing-lg); border-radius: var(--radius-md); margin-top: var(--spacing-lg);">
+                <div style="background: #e3f2fd; color: #1565c0; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-top: var(--spacing-lg); border: 1px solid #bbdefb;">
                     <h4 style="margin: 0 0 var(--spacing-sm) 0;"><i class="fas fa-info-circle"></i> Lưu ý quan trọng</h4>
                     <p style="margin: 0; font-size: var(--font-size-sm);">
                         <strong>Nội dung chuyển khoản:</strong> <?php echo $order['order_number']; ?><br>

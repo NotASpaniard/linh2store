@@ -13,10 +13,10 @@
 
 :root {
     /* Màu chính */
-    --primary-color: #E3F2FD;
-    /* Xanh pastel nhạt */
-    --secondary-color: #BBDEFB;
-    /* Xanh pastel đậm */
+    --primary-color: #2196F3;
+    /* Xanh chính */
+    --secondary-color: #1976D2;
+    /* Xanh đậm */
     --accent-color: #FCE4EC;
     /* Hồng pastel */
     --cta-color: #EC407A;

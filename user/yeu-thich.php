@@ -307,8 +307,7 @@ $wishlist_count = count($wishlist_items);
         }
         
         .btn-primary {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         .btn-primary:hover {
@@ -327,8 +326,7 @@ $wishlist_count = count($wishlist_items);
         }
         
         .btn-outline:hover {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         .empty-state {

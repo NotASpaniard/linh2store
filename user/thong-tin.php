@@ -356,7 +356,7 @@ try {
         
         .btn-primary {
             background: var(--primary-color);
-            color: var(--white);
+            color: white;
         }
         
         .btn-primary:hover {
@@ -371,7 +371,7 @@ try {
         
         .btn-outline:hover {
             background: var(--primary-color);
-            color: var(--white);
+            color: white;
         }
         
         .alert {

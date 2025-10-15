@@ -311,8 +311,7 @@ $user_orders = array_filter($order_locations, function($order) use ($user) {
         }
         
         .btn-primary {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         .btn-primary:hover {
@@ -326,8 +325,7 @@ $user_orders = array_filter($order_locations, function($order) use ($user) {
         }
         
         .btn-outline:hover {
-            background: var(--primary-color);
-            color: var(--white);
+            background: var(--primary-color); color: white;
         }
         
         .empty-state {

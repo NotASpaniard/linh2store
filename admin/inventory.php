@@ -6,6 +6,7 @@
 
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../config/image-helper.php';
 
 // Kiểm tra quyền admin
 if (!isLoggedIn()) {
@@ -33,7 +34,7 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
     
-    // Xây dựng query
+    // Xây dựng câu truy vấn
     $where_conditions = ["1=1"];
     $params = [];
     
@@ -95,7 +96,7 @@ $total_pages = ceil($total_products / $limit);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Phần đầu trang -->
     <header class="admin-header">
         <div class="header-content">
             <div class="header-left">
@@ -110,7 +111,7 @@ $total_pages = ceil($total_products / $limit);
         </div>
     </header>
 
-    <!-- Navigation -->
+    <!-- Thanh điều hướng -->
     <nav class="admin-nav">
         <div class="nav-content">
             <a href="index.php" class="nav-item">
@@ -137,10 +138,10 @@ $total_pages = ceil($total_products / $limit);
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Nội dung chính -->
     <div class="admin-content">
         <div class="container">
-            <!-- Filters -->
+            <!-- Bộ lọc -->
             <div class="filters-section">
                 <form method="GET" class="filters-form">
                     <div class="filter-group">
@@ -167,7 +168,7 @@ $total_pages = ceil($total_products / $limit);
                 </form>
             </div>
 
-            <!-- Inventory Table -->
+            <!-- Bảng tồn kho -->
             <div class="inventory-table-container">
                 <div class="table-header">
                     <h3>Danh sách tồn kho (<?php echo $total_products; ?> sản phẩm)</h3>
@@ -193,8 +194,9 @@ $total_pages = ceil($total_products / $limit);
                                     <tr>
                                         <td>
                                             <div class="product-image">
-                                                <img src="<?php echo $product['image_url'] ?: 'https://via.placeholder.com/60x60/E3F2FD/EC407A?text=No+Image'; ?>" 
-                                                     alt="<?php echo htmlspecialchars($product['name']); ?>">
+                                                <img src="../<?php echo getProductImage($product['id']); ?>" 
+                                                     alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                                     onerror="this.src='https://via.placeholder.com/60x60/E3F2FD/EC407A?text=No+Image'">
                                             </div>
                                         </td>
                                         <td>
@@ -251,7 +253,7 @@ $total_pages = ceil($total_products / $limit);
                 </div>
             </div>
 
-            <!-- Pagination -->
+            <!-- Phân trang -->
             <?php if ($total_pages > 1): ?>
                 <div class="pagination">
                     <?php if ($page > 1): ?>
@@ -330,7 +332,7 @@ $total_pages = ceil($total_products / $limit);
     </script>
 
     <style>
-        /* Admin Dashboard Styles */
+        /* Kiểu dáng cho trang quản trị */
         .admin-header {
             background: var(--white);
             box-shadow: var(--shadow-sm);
