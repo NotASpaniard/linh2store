@@ -134,11 +134,10 @@ try {
                                 </a>
                             </div>
                             <div class="col-6">
-                                <img src="assets/images/hero-lipstick.jpg" 
+                                <img src="https://via.placeholder.com/600x400/FFB6C1/FF69B4?text=💄+Son+Môi+Cao+Cấp" 
                                      alt="Son môi cao cấp" 
                                      class="hero-image"
-                                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"
-                                     onerror="this.src='https://via.placeholder.com/600x400/FFB6C1/FF69B4?text=💄+Son+Môi+Cao+Cấp'">
+                                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
                             </div>
                         </div>
                     </div>
