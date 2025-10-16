@@ -1,14 +1,9 @@
 <?php
 require_once '../config/database.php';
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 
 // Kiểm tra đăng nhập
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/dang-nhap.php');
-    exit();
-}
-
-$user = $_SESSION['user'];
+$user = AuthMiddleware::requireLogin();
 
 // Dữ liệu hardcode về vị trí đơn hàng trong Việt Nam
 $order_locations = [

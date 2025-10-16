@@ -4,20 +4,15 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 
 header('Content-Type: application/json');
 
 // Kiểm tra đăng nhập
-if (!isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập']);
-    exit();
-}
-
+$user = AuthMiddleware::requireLogin();
 $method = $_SERVER['REQUEST_METHOD'];
-$user_id = $_SESSION['user_id'];
+$user_id = $user['id'];
 
 try {
     $db = new Database();

@@ -5,21 +5,19 @@
  */
 
 require_once '../config/database.php';
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
+require_once '../config/oauth.php';
 
 // Nếu đã đăng nhập, chuyển về trang chủ
-if (isLoggedIn()) {
-    $user = getCurrentUser();
-    if ($user && $user['role'] === 'admin') {
-        header('Location: ../admin/');
-    } else {
-        header('Location: ../');
-    }
-    exit();
-}
+AuthMiddleware::requireGuest();
 
 $error = '';
 $success = '';
+
+// Xử lý lỗi từ OAuth callback
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+}
 
 // Xử lý đăng nhập
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -28,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf_token = $_POST['csrf_token'] ?? '';
     
     // Kiểm tra CSRF token
-    if (!verifyCSRFToken($csrf_token)) {
+    if (!AuthMiddleware::verifyCSRFToken($csrf_token)) {
         $error = 'Token không hợp lệ. Vui lòng thử lại.';
     } elseif (empty($username) || empty($password)) {
         $error = 'Vui lòng nhập đầy đủ thông tin.';
@@ -47,23 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
             
             if ($user && password_verify($password, $user['password'])) {
-                // Đăng nhập thành công
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user'] = [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'email' => $user['email'],
-                    'full_name' => $user['full_name'],
-                    'role' => $user['role']
-                ];
-                
-                // Chuyển hướng theo role
-                if ($user['role'] === 'admin') {
-                    header('Location: ../admin/');
-                } else {
-                    header('Location: ../');
-                }
-                exit();
+                // Đăng nhập thành công - sử dụng JWT
+                AuthMiddleware::loginUser($user);
             } else {
                 $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
             }
@@ -92,6 +75,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Chào mừng bạn quay trở lại!</p>
             </div>
             
+            <!-- OAuth Login Options -->
+            <div class="oauth-section">
+                <div class="oauth-buttons">
+                    <a href="<?php echo OAuthProvider::getGoogleAuthUrl(); ?>" class="oauth-btn google-btn">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </a>
+                    <a href="<?php echo OAuthProvider::getFacebookAuthUrl(); ?>" class="oauth-btn facebook-btn">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                </div>
+                <div class="oauth-divider">
+                    <span>Hoặc đăng nhập bằng tài khoản</span>
+                </div>
+            </div>
+            
             <?php if ($error): ?>
                 <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <form method="POST" class="auth-form">
-                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo AuthMiddleware::generateCSRFToken(); ?>">
                 
                 <div class="form-group">
                     <label for="username" class="form-label">
@@ -305,6 +305,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .auth-card {
                 padding: var(--spacing-xl);
                 margin: var(--spacing-md);
+            }
+        }
+        
+        /* OAuth Styles */
+        .oauth-section {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .oauth-divider {
+            text-align: center;
+            position: relative;
+            margin: var(--spacing-lg) 0;
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .oauth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--primary-color);
+            z-index: 1;
+        }
+        
+        .oauth-divider span {
+            background: var(--white);
+            padding: 0 var(--spacing-md);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .oauth-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .oauth-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            border: 2px solid var(--primary-color);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+        
+        .oauth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .google-btn {
+            color: #db4437;
+            border-color: #db4437;
+        }
+        
+        .google-btn:hover {
+            background: #db4437;
+            color: var(--white);
+        }
+        
+        .facebook-btn {
+            color: #4267B2;
+            border-color: #4267B2;
+        }
+        
+        .facebook-btn:hover {
+            background: #4267B2;
+            color: var(--white);
+        }
+        
+        @media (max-width: 480px) {
+            .oauth-buttons {
+                flex-direction: column;
             }
         }
         </style>

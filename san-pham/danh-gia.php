@@ -1,12 +1,9 @@
 <?php
 require_once '../config/database.php';
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 
 // Kiểm tra đăng nhập
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/dang-nhap.php');
-    exit;
-}
+$user = AuthMiddleware::requireLogin();
 
 $product_id = $_GET['id'] ?? '';
 if (empty($product_id)) {

@@ -4,15 +4,12 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 require_once '../config/image-helper.php';
 
 // Kiểm tra đăng nhập
-if (!isLoggedIn()) {
-    header('Location: ../auth/dang-nhap.php');
-    exit();
-}
+$user = AuthMiddleware::requireLogin();
 
 $order_id = intval($_GET['id'] ?? 0);
 $order = null;

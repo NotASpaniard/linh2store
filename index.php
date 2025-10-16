@@ -4,7 +4,7 @@
  * Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once 'config/session.php';
+require_once 'config/auth-middleware.php';
 require_once 'config/database.php';
 require_once 'config/image-helper.php';
 
@@ -98,7 +98,7 @@ try {
                     
                     <!-- User Actions -->
                     <div class="user-actions">
-                        <?php if (isLoggedIn()): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
                             </a>
@@ -333,7 +333,7 @@ try {
         });
         
         function updateCartCount() {
-            <?php if (isLoggedIn()): ?>
+            <?php if (AuthMiddleware::isLoggedIn()): ?>
             fetch('api/cart.php?action=count')
             .then(response => response.json())
             .then(data => {

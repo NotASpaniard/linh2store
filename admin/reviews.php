@@ -1,12 +1,9 @@
 <?php
 require_once '../config/database.php';
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 
 // Kiểm tra quyền admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user']['role'] !== 'admin') {
-    header('Location: ../auth/dang-nhap.php');
-    exit;
-}
+$user = AuthMiddleware::requireAdmin();
 
 $db = new Database();
 $conn = $db->getConnection();

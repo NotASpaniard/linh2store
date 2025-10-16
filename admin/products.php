@@ -4,20 +4,11 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 
 // Kiểm tra quyền admin
-if (!isLoggedIn()) {
-    header('Location: ../auth/dang-nhap.php');
-    exit();
-}
-
-$user = getCurrentUser();
-if (!$user || $user['role'] !== 'admin') {
-    header('Location: ../');
-    exit();
-}
+$user = AuthMiddleware::requireAdmin();
 
 // Lấy tham số
 $page = max(1, intval($_GET['page'] ?? 1));
