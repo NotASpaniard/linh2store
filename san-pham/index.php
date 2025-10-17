@@ -1025,6 +1025,139 @@ $total_pages = ceil($total_products / $limit);
                 width: 100%;
             }
         }
+        
+        /* AI Recommendations Styles */
+        .ai-recommendations-section {
+            background: #f8f9fa;
+            padding: 3rem 0;
+            margin-top: 2rem;
+        }
+        
+        .ai-recommendations-section h2 {
+            text-align: center;
+            color: #EC407A;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-recommendations-section p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .ai-recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .ai-recommendation-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .ai-recommendation-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .ai-recommendation-card .ai-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #EC407A;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .ai-loading {
+            text-align: center;
+            padding: 2rem;
+            color: #EC407A;
+        }
+        
+        .ai-loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
+    
+    <script>
+        // Load AI Recommendations
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if (AuthMiddleware::isLoggedIn()): ?>
+            loadAIRecommendations();
+            <?php endif; ?>
+        });
+        
+        function loadAIRecommendations() {
+            const loadingDiv = document.getElementById('ai-loading');
+            const recommendationsDiv = document.getElementById('ai-recommendations');
+            
+            loadingDiv.style.display = 'block';
+            recommendationsDiv.innerHTML = '';
+            
+            fetch('api/ai-recommendations.php?action=get_recommendations&limit=6')
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.style.display = 'none';
+                    if (data.success && data.recommendations.length > 0) {
+                        displayAIRecommendations(data.recommendations);
+                    } else {
+                        recommendationsDiv.innerHTML = '<p>Chưa có gợi ý nào. Hãy xem một số sản phẩm để AI có thể gợi ý cho bạn!</p>';
+                    }
+                })
+                .catch(error => {
+                    loadingDiv.style.display = 'none';
+                    recommendationsDiv.innerHTML = '<p>Không thể tải gợi ý AI. Vui lòng thử lại sau.</p>';
+                });
+        }
+        
+        function displayAIRecommendations(recommendations) {
+            const recommendationsDiv = document.getElementById('ai-recommendations');
+            
+            recommendations.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'ai-recommendation-card';
+                productCard.innerHTML = `
+                    <div class="ai-badge">
+                        <i class="fas fa-robot"></i>
+                        ${product.recommendation_type}
+                    </div>
+                    <div class="product-image">
+                        <img src="../${product.image || 'assets/images/no-image.jpg'}" 
+                             alt="${product.name}" loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="chi-tiet.php?id=${product.id}">${product.name}</a>
+                        </h3>
+                        <p class="product-brand">${product.brand_name || 'Thương hiệu'}</p>
+                        <p class="product-price">${product.price.toLocaleString()}đ</p>
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart" data-product-id="${product.id}">
+                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
+                `;
+                recommendationsDiv.appendChild(productCard);
+            });
+        }
+    </script>
 </body>
 </html>
