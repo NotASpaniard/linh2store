@@ -86,14 +86,37 @@ linh2store/
    - Import file `database/schema.sql`
    - Cập nhật thông tin kết nối trong `config/database.php`
 
-3. **Cấu hình web server:**
+3. **Cấu hình OAuth (Google/Facebook):**
+   ```bash
+   # Copy file template
+   cp config/oauth-config.example.php config/oauth-config.php
+   
+   # Chỉnh sửa file oauth-config.php với credentials thật của bạn
+   # ⚠️ QUAN TRỌNG: File oauth-config.php đã được .gitignore, không commit lên GitHub
+   ```
+
+4. **Cấu hình web server:**
    - Đặt thư mục dự án vào `htdocs` của XAMPP
    - Truy cập `http://localhost/linh2store`
 
-4. **Tạo tài khoản admin:**
+5. **Tạo tài khoản admin:**
    - Username: `admin`
    - Email: `admin@linh2store.com`
    - Password: `password`
+
+## 🔐 Bảo mật
+
+### OAuth Credentials:
+- **File `config/oauth-config.php` chứa thông tin nhạy cảm**
+- **Đã được .gitignore để không commit lên GitHub**
+- Sử dụng file `config/oauth-config.example.php` làm template
+- Thay thế `YOUR_*_HERE` bằng credentials thật của bạn
+
+### Files được bảo vệ:
+- `config/oauth-config.php` - OAuth credentials
+- `.env` - Environment variables
+- `config/database-secrets.php` - Database secrets (nếu có)
+- `*.log` - Log files
 
 ## 📱 Tính năng
 

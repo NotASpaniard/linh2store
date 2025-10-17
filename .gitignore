@@ -1,0 +1,48 @@
+# Linh2Store - Security & Environment Files
+# Đảm bảo thông tin nhạy cảm không bị commit lên GitHub
+
+# OAuth Credentials - BẢO MẬT QUAN TRỌNG
+config/oauth-config.php
+config/oauth-credentials.php
+config/oauth-secrets.php
+
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# Database Configuration (nếu chứa thông tin nhạy cảm)
+config/database-secrets.php
+
+# Log Files
+*.log
+logs/
+error.log
+access.log
+
+# Cache Files
+cache/
+tmp/
+temp/
+
+# Upload Files (nếu có chứa thông tin nhạy cảm)
+uploads/private/
+
+# Backup Files
+*.bak
+*.backup
+*.sql.gz
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Test Files (tùy chọn)
+test-*.php
+debug-*.php

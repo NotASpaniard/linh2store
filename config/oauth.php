@@ -4,17 +4,20 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
+// Load OAuth configuration
+require_once __DIR__ . '/oauth-config.php';
+
 class OAuthProvider {
     
-    // Google OAuth Configuration
-    private static $google_client_id = 'YOUR_GOOGLE_CLIENT_ID';
-    private static $google_client_secret = 'YOUR_GOOGLE_CLIENT_SECRET';
-    private static $google_redirect_uri = 'http://localhost/linh2store/auth/oauth-callback.php';
+    // Google OAuth Configuration - Loaded from oauth-config.php
+    private static $google_client_id = GOOGLE_CLIENT_ID;
+    private static $google_client_secret = GOOGLE_CLIENT_SECRET;
+    private static $google_redirect_uri = GOOGLE_REDIRECT_URI;
     
-    // Facebook OAuth Configuration
-    private static $facebook_app_id = 'YOUR_FACEBOOK_APP_ID';
-    private static $facebook_app_secret = 'YOUR_FACEBOOK_APP_SECRET';
-    private static $facebook_redirect_uri = 'http://localhost/linh2store/auth/oauth-callback.php';
+    // Facebook OAuth Configuration - Loaded from oauth-config.php
+    private static $facebook_app_id = FACEBOOK_APP_ID;
+    private static $facebook_app_secret = FACEBOOK_APP_SECRET;
+    private static $facebook_redirect_uri = FACEBOOK_REDIRECT_URI;
     
     /**
      * Tạo Google OAuth URL
