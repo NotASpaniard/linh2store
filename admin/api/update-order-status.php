@@ -4,13 +4,13 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../../config/session.php';
+require_once '../../config/auth-middleware.php';
 require_once '../../config/database.php';
 
 header('Content-Type: application/json');
 
 // Kiểm tra quyền admin
-if (!isLoggedIn()) {
+if (!AuthMiddleware::isLoggedIn()) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập']);
     exit();

@@ -4,7 +4,7 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 require_once '../config/image-helper.php';
 
@@ -34,8 +34,8 @@ try {
     $params = [];
     
     if ($search) {
-        $where_conditions[] = "(p.name LIKE ? OR p.description LIKE ?)";
-        $params[] = "%$search%";
+        // Chỉ tìm theo tên sản phẩm (không tìm trong description)
+        $where_conditions[] = "p.name LIKE ?";
         $params[] = "%$search%";
     }
     
@@ -161,15 +161,10 @@ $total_pages = ceil($total_products / $limit);
                         <a href="../lien-he/" class="nav-link">Liên hệ</a>
                     </nav>
                     
-                    <div class="search-bar">
-                        <input type="text" class="search-input" placeholder="Tìm kiếm sản phẩm..." value="<?php echo htmlspecialchars($search); ?>">
-                        <button class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
+                    <!-- Search bar đã được xóa để tránh xung đột JavaScript -->
                     
                     <div class="user-actions">
-                        <?php if (isLoggedIn()): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
                             </a>
@@ -210,8 +205,8 @@ $total_pages = ceil($total_products / $limit);
                         <!-- Search -->
                         <div class="filter-group">
                             <h4>Tìm kiếm</h4>
-                            <form method="GET" class="search-form">
-                                <input type="text" name="search" placeholder="Tìm kiếm..." value="<?php echo htmlspecialchars($search); ?>">
+                            <form method="GET" action="search.php" class="search-form" name="searchForm">
+                                <input type="text" name="q" placeholder="Tìm kiếm..." value="<?php echo htmlspecialchars($search); ?>">
                                 <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
                             </form>
                         </div>
@@ -372,7 +367,6 @@ $total_pages = ceil($total_products / $limit);
                             
                             <div class="pagination-info">
                                 <span>Trang <?php echo $page; ?> / <?php echo $total_pages; ?></span>
-                                <span>(<?php echo $total_products; ?> sản phẩm)</span>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -381,153 +375,20 @@ $total_pages = ceil($total_products / $limit);
         </div>
     </div>
 
-    <script src="../assets/js/main.js"></script>
+    <!-- main.js đã được xóa để tránh xung đột -->
     
-    <script>
-        // Pagination Slider
-        document.addEventListener('DOMContentLoaded', function() {
-            const prevBtn = document.querySelector('.prev-btn');
-            const nextBtn = document.querySelector('.next-btn');
-            const slides = document.querySelector('.pagination-slides');
-            const pageSlides = document.querySelectorAll('.page-slide');
-            
-            if (prevBtn && nextBtn && slides) {
-                prevBtn.addEventListener('click', function() {
-                    const currentPage = parseInt(document.querySelector('.page-slide.active').dataset.page);
-                    if (currentPage > 1) {
-                        const prevPage = currentPage - 1;
-                        window.location.href = updateUrlParameter('page', prevPage);
-                    }
-                });
-                
-                nextBtn.addEventListener('click', function() {
-                    const currentPage = parseInt(document.querySelector('.page-slide.active').dataset.page);
-                    const totalPages = pageSlides.length;
-                    if (currentPage < totalPages) {
-                        const nextPage = currentPage + 1;
-                        window.location.href = updateUrlParameter('page', nextPage);
-                    }
-                });
-            }
-            
-            // Auto scroll to active page in slider
-            if (slides && pageSlides.length > 0) {
-                const activeSlide = document.querySelector('.page-slide.active');
-                if (activeSlide) {
-                    activeSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
-            }
-        });
-        
-        function updateUrlParameter(param, paramVal) {
-            const url = new URL(window.location);
-            url.searchParams.set(param, paramVal);
-            return url.toString();
-        }
-        
-        // Add to cart functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const addToCartBtns = document.querySelectorAll('.add-to-cart');
-            
-            addToCartBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const productId = this.dataset.productId;
-                    
-                    // Gửi AJAX request để thêm vào giỏ hàng
-                    fetch('../api/cart.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action: 'add',
-                            product_id: productId,
-                            quantity: 1
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Hiển thị thông báo thành công
-                            showNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
-                            
-                            // Cập nhật số lượng giỏ hàng
-                            updateCartCount();
-                        } else {
-                            showNotification(data.message || 'Có lỗi xảy ra!', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showNotification('Có lỗi xảy ra khi thêm sản phẩm!', 'error');
-                    });
-                });
-            });
-        });
-        
-        function showNotification(message, type = 'info') {
-            // Tạo thông báo
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <div class="notification-content">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            // Thêm style cho notification
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 10000;
-                transform: translateX(100%);
-                transition: transform 0.3s ease;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Hiển thị notification
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-            
-            // Tự động ẩn sau 3 giây
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
-        
-        function updateCartCount() {
-            // Lấy số lượng giỏ hàng từ server
-            fetch('../api/cart.php?action=count')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const cartCount = document.querySelector('.cart-count');
-                    if (cartCount) {
-                        cartCount.textContent = data.count;
-                        cartCount.style.display = data.count > 0 ? 'block' : 'none';
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error updating cart count:', error);
-            });
-        }
-    </script>
+    <!-- JavaScript đã được tắt hoàn toàn để tránh xung đột -->
+        <!-- Tất cả JavaScript đã được tắt hoàn toàn -->
     
     <style>
+        html, body {
+            scroll-behavior: auto;
+        }
+        
+        body {
+            scroll-padding-top: 0;
+        }
+        
         .breadcrumb {
             background: var(--bg-light);
             padding: var(--spacing-md) 0;

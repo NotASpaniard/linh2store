@@ -90,10 +90,12 @@ try {
                     
                     <!-- Search Bar -->
                     <div class="search-bar">
-                        <input type="text" class="search-input" placeholder="Tìm kiếm son môi, mỹ phẩm...">
-                        <button class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
+                        <form method="GET" action="san-pham/search.php">
+                            <input type="text" name="q" class="search-input" placeholder="Tìm kiếm son môi, mỹ phẩm..." required>
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
                     </div>
                     
                     <!-- User Actions -->
@@ -108,7 +110,7 @@ try {
                             </a>
                         <?php endif; ?>
                         
-                        <a href="thanh-toan/" class="cart-icon" title="Thanh toán">
+                        <a href="gio-hang.php" class="cart-icon" title="Giỏ hàng">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="header-cart-count">0</span>
                         </a>

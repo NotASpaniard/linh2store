@@ -4,7 +4,7 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 
 $success_message = '';
 $error_message = '';
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="user-actions">
-                        <?php if (isLoggedIn()): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
                             </a>

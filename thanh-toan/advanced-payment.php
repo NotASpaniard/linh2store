@@ -73,7 +73,7 @@ if ($member_benefits['free_shipping']) {
 }
 
 // Xử lý áp dụng coupon
-if ($_POST['action'] === 'apply_coupon') {
+if (isset($_POST['action']) && $_POST['action'] === 'apply_coupon') {
     $coupon_code = trim($_POST['coupon_code']);
     
     if ($coupon_code) {
@@ -81,20 +81,20 @@ if ($_POST['action'] === 'apply_coupon') {
         
         if ($coupon_result['valid']) {
             $coupon_discount = CouponSystem::calculateDiscount($coupon_result['coupon'], $cart_total);
-            $_SESSION['applied_coupon'] = $coupon_result['coupon'];
+            $applied_coupon = $coupon_result['coupon'];
         } else {
-            $_SESSION['coupon_error'] = $coupon_result['message'];
+            $coupon_error = $coupon_result['message'];
         }
     }
 }
 
 // Xử lý sử dụng điểm thưởng
-if ($_POST['action'] === 'use_loyalty_points') {
+if (isset($_POST['action']) && $_POST['action'] === 'use_loyalty_points') {
     $points_to_use = intval($_POST['loyalty_points']);
     
     if ($points_to_use > 0 && $loyalty && $points_to_use <= $loyalty['points']) {
         $loyalty_discount = LoyaltySystem::calculateValue($points_to_use);
-        $_SESSION['loyalty_points_used'] = $points_to_use;
+        $loyalty_points_used = $points_to_use;
     }
 }
 
@@ -316,13 +316,13 @@ $total_amount = $final_amount + $shipping_fee;
                         <button type="submit" class="btn-apply">Áp dụng</button>
                     </form>
                     
-                    <?php if (isset($_SESSION['coupon_error'])): ?>
-                        <div class="error-message"><?php echo $_SESSION['coupon_error']; unset($_SESSION['coupon_error']); ?></div>
+                    <?php if (isset($coupon_error)): ?>
+                        <div class="error-message"><?php echo $coupon_error; ?></div>
                     <?php endif; ?>
                     
-                    <?php if (isset($_SESSION['applied_coupon'])): ?>
+                    <?php if (isset($applied_coupon)): ?>
                         <div class="success-message">
-                            Đã áp dụng mã: <?php echo $_SESSION['applied_coupon']['name']; ?>
+                            Đã áp dụng mã: <?php echo $applied_coupon['name']; ?>
                         </div>
                     <?php endif; ?>
                     

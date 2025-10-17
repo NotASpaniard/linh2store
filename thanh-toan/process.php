@@ -10,7 +10,7 @@ require_once '../config/database.php';
 // Kiểm tra đăng nhập
 $user = AuthMiddleware::requireLogin();
 
-$user = getCurrentUser();
+// $user đã được lấy từ AuthMiddleware::requireLogin() ở trên
 
 // Kiểm tra method POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -43,8 +43,8 @@ if (!empty($phone) && !preg_match('/^[0-9]{10,11}$/', $phone)) {
 }
 
 if (!empty($errors)) {
-    $_SESSION['checkout_errors'] = $errors;
-    header('Location: ../thanh-toan/');
+    $error_message = urlencode(implode(', ', $errors));
+    header('Location: ../thanh-toan/?error=' . $error_message);
     exit();
 }
 
@@ -161,8 +161,8 @@ try {
         $conn->rollback();
     }
     
-    $_SESSION['checkout_error'] = $e->getMessage();
-    header('Location: ../thanh-toan/');
+    $error_message = urlencode($e->getMessage());
+    header('Location: ../thanh-toan/?error=' . $error_message);
     exit();
 }
 ?>

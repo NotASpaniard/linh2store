@@ -4,7 +4,7 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 require_once '../config/image-helper.php';
 
@@ -93,7 +93,7 @@ try {
                     </div>
                     
                     <div class="user-actions">
-                        <?php if (isLoggedIn()): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
                             </a>
@@ -233,7 +233,7 @@ try {
     <section class="brand-benefits">
         <div class="container">
             <div class="row">
-                <div class="col-4">
+                <div class="col-3">
                     <div class="benefit-card">
                         <div class="benefit-icon">
                             <i class="fas fa-crown"></i>
@@ -242,7 +242,7 @@ try {
                         <p>Chỉ bán những thương hiệu mỹ phẩm nổi tiếng thế giới</p>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <div class="benefit-card">
                         <div class="benefit-icon">
                             <i class="fas fa-shield-alt"></i>
@@ -251,7 +251,7 @@ try {
                         <p>Cam kết tất cả sản phẩm đều chính hãng</p>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <div class="benefit-card">
                         <div class="benefit-icon">
                             <i class="fas fa-star"></i>
@@ -522,6 +522,19 @@ try {
             margin: 0;
         }
         
+        .col-3 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+            padding: 0 var(--spacing-sm);
+        }
+        
+        .benefit-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
         @media (max-width: 768px) {
             .brands-grid {
                 grid-template-columns: 1fr;
@@ -538,8 +551,9 @@ try {
                 width: 100%;
             }
             
-            .col-4 {
+            .col-3 {
                 flex: 0 0 100%;
+                max-width: 100%;
                 margin-bottom: var(--spacing-lg);
             }
         }

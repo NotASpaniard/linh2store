@@ -1,159 +1,17 @@
 /**
- * Linh2Store - JavaScript chính
+ * Linh2Store - JavaScript tối ưu (chỉ cart functions)
  * Website bán son môi & mỹ phẩm cao cấp
  */
 
 // Khởi tạo khi DOM đã load
 document.addEventListener('DOMContentLoaded', function() {
-    initApp();
-});
-
-/**
- * Khởi tạo ứng dụng
- */
-function initApp() {
-    initSearch();
     initCart();
     initProductImages();
     initColorSwatches();
     initMobileMenu();
     initSmoothScroll();
     initLazyLoading();
-}
-
-/**
- * Khởi tạo tìm kiếm
- */
-function initSearch() {
-    const searchInput = document.querySelector('.search-input');
-    const searchBtn = document.querySelector('.search-btn');
-
-    if (searchInput) {
-        // Tìm kiếm real-time
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value.trim();
-
-            if (query.length >= 2) {
-                searchTimeout = setTimeout(() => {
-                    performSearch(query);
-                }, 300);
-            } else {
-                hideSearchResults();
-            }
-        });
-
-        // Tìm kiếm khi nhấn Enter
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                performSearch(this.value.trim());
-            }
-        });
-    }
-
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function() {
-            const query = searchInput.value.trim();
-            if (query) {
-                performSearch(query);
-            }
-        });
-    }
-}
-
-/**
- * Thực hiện tìm kiếm
- */
-function performSearch(query) {
-    if (!query) return;
-
-    // Hiển thị loading
-    showLoading();
-
-    // Gửi request tìm kiếm
-    fetch(`/linh2store/api/search.php?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            displaySearchResults(data);
-        })
-        .catch(error => {
-            hideLoading();
-            console.error('Lỗi tìm kiếm:', error);
-            showAlert('Có lỗi xảy ra khi tìm kiếm', 'error');
-        });
-}
-
-/**
- * Hiển thị kết quả tìm kiếm
- */
-function displaySearchResults(results) {
-    const searchContainer = document.querySelector('.search-results');
-    if (!searchContainer) {
-        createSearchResultsContainer();
-    }
-
-    const container = document.querySelector('.search-results');
-    if (!results || results.length === 0) {
-        container.innerHTML = '<p class="no-results">Không tìm thấy sản phẩm nào</p>';
-        return;
-    }
-
-    let html = '<div class="search-results-list">';
-    results.forEach(product => {
-        html += `
-            <div class="search-result-item" onclick="goToProduct(${product.id})">
-                <img src="${product.image}" alt="${product.name}" class="result-image">
-                <div class="result-info">
-                    <h4>${product.name}</h4>
-                    <p class="result-price">${formatPrice(product.price)}</p>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-
-    container.innerHTML = html;
-    container.style.display = 'block';
-}
-
-/**
- * Tạo container kết quả tìm kiếm
- */
-function createSearchResultsContainer() {
-    const searchBar = document.querySelector('.search-bar');
-    if (searchBar) {
-        const container = document.createElement('div');
-        container.className = 'search-results';
-        container.style.cssText = `
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #E3F2FD;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-            z-index: 1000;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-        `;
-        searchBar.appendChild(container);
-    }
-}
-
-/**
- * Ẩn kết quả tìm kiếm
- */
-function hideSearchResults() {
-    const container = document.querySelector('.search-results');
-    if (container) {
-        container.style.display = 'none';
-    }
-}
+});
 
 /**
  * Khởi tạo giỏ hàng
@@ -190,6 +48,7 @@ function addToCart(productId, colorId = null, quantity = 1) {
     showLoading();
 
     const formData = new FormData();
+    formData.append('action', 'add');
     formData.append('product_id', productId);
     if (colorId) formData.append('color_id', colorId);
     formData.append('quantity', quantity);
@@ -252,13 +111,14 @@ function updateCartCount() {
         .then(response => response.json())
         .then(data => {
             const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.count || 0;
-                cartCount.style.display = data.count > 0 ? 'block' : 'none';
+            if (cartCount && data.items) {
+                const count = data.items.length;
+                cartCount.textContent = count;
+                cartCount.style.display = count > 0 ? 'block' : 'none';
             }
         })
         .catch(error => {
-            console.error('Lỗi cập nhật giỏ hàng:', error);
+            console.error('Lỗi cập nhật số lượng giỏ hàng:', error);
         });
 }
 
@@ -266,33 +126,23 @@ function updateCartCount() {
  * Khởi tạo hình ảnh sản phẩm
  */
 function initProductImages() {
-    const productImages = document.querySelectorAll('.product-image img');
-
+    const productImages = document.querySelectorAll('.product-image');
     productImages.forEach(img => {
-        // Zoom effect khi hover
-        img.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.1)';
-        });
+        img.addEventListener('click', function() {
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <img src="${this.src}" alt="${this.alt}">
+                </div>
+            `;
+            document.body.appendChild(modal);
 
-        img.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-        });
-
-        // Lazy loading
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        observer.unobserve(img);
-                    }
-                });
+            modal.querySelector('.close').addEventListener('click', () => {
+                modal.remove();
             });
-
-            observer.observe(img);
-        }
+        });
     });
 }
 
@@ -300,21 +150,11 @@ function initProductImages() {
  * Khởi tạo color swatches
  */
 function initColorSwatches() {
-    const colorSwatches = document.querySelectorAll('.color-swatch');
-
-    colorSwatches.forEach(swatch => {
+    const swatches = document.querySelectorAll('.color-swatch');
+    swatches.forEach(swatch => {
         swatch.addEventListener('click', function() {
-            // Xóa active class từ tất cả swatches
-            colorSwatches.forEach(s => s.classList.remove('active'));
-
-            // Thêm active class cho swatch được chọn
+            swatches.forEach(s => s.classList.remove('active'));
             this.classList.add('active');
-
-            // Cập nhật hình ảnh sản phẩm nếu có
-            const productImage = document.querySelector('.product-main-image');
-            if (productImage && this.dataset.image) {
-                productImage.src = this.dataset.image;
-            }
         });
     });
 }
@@ -323,21 +163,12 @@ function initColorSwatches() {
  * Khởi tạo mobile menu
  */
 function initMobileMenu() {
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileMenu = document.querySelector('.mobile-menu');
 
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', function() {
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', () => {
             mobileMenu.classList.toggle('active');
-            this.classList.toggle('active');
-        });
-
-        // Đóng menu khi click outside
-        document.addEventListener('click', function(e) {
-            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                mobileMenuBtn.classList.remove('active');
-            }
         });
     }
 }
@@ -346,18 +177,13 @@ function initMobileMenu() {
  * Khởi tạo smooth scroll
  */
 function initSmoothScroll() {
-    const links = document.querySelectorAll('a[href^="#"]');
-
-    links.forEach(link => {
-        link.addEventListener('click', function(e) {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
             e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
                 });
             }
         });
@@ -368,47 +194,28 @@ function initSmoothScroll() {
  * Khởi tạo lazy loading
  */
 function initLazyLoading() {
-    if ('IntersectionObserver' in window) {
-        const lazyImages = document.querySelectorAll('img[data-src]');
-
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            }
         });
+    });
 
-        lazyImages.forEach(img => imageObserver.observe(img));
-    }
+    images.forEach(img => imageObserver.observe(img));
 }
 
 /**
  * Hiển thị loading
  */
 function showLoading() {
-    const existingLoader = document.querySelector('.loading-overlay');
-    if (existingLoader) return;
-
     const loader = document.createElement('div');
-    loader.className = 'loading-overlay';
-    loader.innerHTML = '<div class="loading"></div>';
-    loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255,255,255,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    `;
-
+    loader.className = 'loader';
+    loader.innerHTML = '<div class="spinner"></div>';
     document.body.appendChild(loader);
 }
 
@@ -416,7 +223,7 @@ function showLoading() {
  * Ẩn loading
  */
 function hideLoading() {
-    const loader = document.querySelector('.loading-overlay');
+    const loader = document.querySelector('.loader');
     if (loader) {
         loader.remove();
     }
@@ -458,14 +265,7 @@ function formatPrice(price) {
 }
 
 /**
- * Chuyển đến trang sản phẩm
- */
-function goToProduct(productId) {
-    window.location.href = `/linh2store/san-pham/chi-tiet.php?id=${productId}`;
-}
-
-/**
- * Thêm CSS animation cho alert
+ * Thêm CSS animation
  */
 const style = document.createElement('style');
 style.textContent = `

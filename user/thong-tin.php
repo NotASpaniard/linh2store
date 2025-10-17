@@ -39,8 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $stmt = $conn->prepare("UPDATE users SET avatar = ?, updated_at = NOW() WHERE id = ?");
                     $stmt->execute([$new_filename, $user['id']]);
                     
-                    // Cập nhật session
-                    $_SESSION['user']['avatar'] = $new_filename;
+                    // Cập nhật user data
                     $user['avatar'] = $new_filename;
                     
                     $success_message = 'Cập nhật avatar thành công!';
@@ -131,18 +130,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $birthday ?: null, $gender ?: null, $user['id']
             ]);
             
-            // Cập nhật session
-            $_SESSION['user']['full_name'] = $full_name;
-            $_SESSION['user']['email'] = $email;
-            $_SESSION['user']['phone'] = $phone;
-            $_SESSION['user']['address'] = $address;
-            $_SESSION['user']['city'] = $city;
-            $_SESSION['user']['district'] = $district;
-            $_SESSION['user']['birthday'] = $birthday;
-            $_SESSION['user']['gender'] = $gender;
+            // Cập nhật user data
+            $user['full_name'] = $full_name;
+            $user['email'] = $email;
+            $user['phone'] = $phone;
+            $user['address'] = $address;
+            $user['city'] = $city;
+            $user['district'] = $district;
+            $user['birthday'] = $birthday;
+            $user['gender'] = $gender;
             
             $success_message = 'Cập nhật thông tin thành công!';
-            $user = $_SESSION['user']; // Refresh user data
             
         } catch (Exception $e) {
             $error_message = 'Có lỗi xảy ra khi cập nhật thông tin: ' . $e->getMessage();
@@ -162,9 +160,8 @@ try {
     $user_data = $stmt->fetch();
     
     if ($user_data) {
-        // Merge dữ liệu từ database vào session user
+        // Merge dữ liệu từ database vào user data
         $user = array_merge($user, $user_data);
-        $_SESSION['user'] = $user; // Cập nhật session
     }
 } catch (Exception $e) {
     // Không hiển thị lỗi nếu không lấy được dữ liệu từ database

@@ -27,7 +27,7 @@ if ($order_id) {
             LEFT JOIN users u ON o.user_id = u.id
             WHERE o.id = ? AND o.user_id = ?
         ");
-        $stmt->execute([$order_id, $_SESSION['user_id']]);
+        $stmt->execute([$order_id, $user['id']]);
         $order = $stmt->fetch();
         
         if (!$order) {

@@ -4,7 +4,7 @@
  * Linh2Store - Website bán son môi & mỹ phẩm cao cấp
  */
 
-require_once '../config/session.php';
+require_once '../config/auth-middleware.php';
 require_once '../config/database.php';
 require_once '../config/image-helper.php';
 
@@ -89,14 +89,15 @@ try {
     
     // Kiểm tra quyền viết đánh giá (chỉ cho user đã đăng nhập)
     $can_review = false;
-    if (isset($_SESSION['user_id'])) {
+    if (AuthMiddleware::isLoggedIn()) {
+        $user = AuthMiddleware::getCurrentUser();
         $stmt = $conn->prepare("
             SELECT COUNT(*) as has_purchased 
             FROM order_items oi 
             JOIN orders o ON oi.order_id = o.id 
             WHERE o.user_id = ? AND oi.product_id = ? AND o.status = 'delivered'
         ");
-        $stmt->execute([$_SESSION['user_id'], $product_id]);
+        $stmt->execute([$user['id'], $product_id]);
         $can_review = $stmt->fetch()['has_purchased'] > 0;
     }
     
@@ -153,7 +154,7 @@ try {
                     </div>
                     
                     <div class="user-actions">
-                        <?php if (isLoggedIn()): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
                             </a>
@@ -389,7 +390,7 @@ try {
                             <p>Chưa có đánh giá nào cho sản phẩm này.</p>
                         <?php endif; ?>
                         
-                        <?php if (isset($_SESSION['user_id'])): ?>
+                        <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <?php if ($can_review): ?>
                                 <div style="margin-top: 20px; text-align: center;">
                                     <a href="danh-gia.php?id=<?php echo $product_id; ?>" class="btn btn-primary">
