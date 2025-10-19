@@ -4,7 +4,7 @@
  * Linh2Store - Chatbot đơn giản và hiệu quả
  */
 
-class Linh2StoreChatbot {
+class SimpleChatbot {
     
     /**
      * Xử lý tin nhắn đơn giản

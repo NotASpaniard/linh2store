@@ -4,7 +4,7 @@
  * Linh2Store - API endpoint cho chatbot đơn giản
  */
 
-require_once '../config/Linh2Store-chatbot.php';
+require_once '../config/simple-chatbot.php';
 
 header('Content-Type: application/json');
 
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $chatbot = new Linh2StoreChatbot();
+    $chatbot = new SimpleChatbot();
     $response = $chatbot->processMessage($message);
     
     echo json_encode([

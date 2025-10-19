@@ -612,62 +612,14 @@ try {
                         <button onclick="sendAIChatbotMessage()" id="ai-chatbot-send">
                             <i class="fas fa-paper-plane"></i>
                         </button>
+                        <button onclick="showQuickActions()" id="show-quick-actions" title="Hiện lại Quick Actions">
+                            <i class="fas fa-lightbulb"></i>
+                        </button>
                     </div>
                 </div>
                 
                 <!-- AI Features Menu -->
                 <div class="ai-features-menu">
-                    <div class="ai-feature-item" onclick="openAIRecommendations()">
-                        <div class="ai-feature-icon">
-                            <i class="fas fa-lightbulb"></i>
-                        </div>
-                        <div class="ai-feature-info">
-                            <h6>AI Recommendations</h6>
-                            <p>Gợi ý sản phẩm thông minh</p>
-                        </div>
-                        <div class="ai-feature-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </div>
-                    
-                        <div class="ai-feature-item" onclick="openAISentiment()">
-                            <div class="ai-feature-icon">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            <div class="ai-feature-info">
-                                <h6>AI Sentiment Analysis</h6>
-                                <p>Phân tích cảm xúc đánh giá</p>
-                            </div>
-                            <div class="ai-feature-arrow">
-                                <i class="fas fa-chevron-right"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="ai-feature-item" onclick="openAITraining()">
-                            <div class="ai-feature-icon">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="ai-feature-info">
-                                <h6>AI Training Dashboard</h6>
-                                <p>Huấn luyện AI thông minh</p>
-                            </div>
-                            <div class="ai-feature-arrow">
-                                <i class="fas fa-chevron-right"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="ai-feature-item" onclick="openAIAutoTraining()">
-                            <div class="ai-feature-icon">
-                                <i class="fas fa-magic"></i>
-                            </div>
-                            <div class="ai-feature-info">
-                                <h6>AI Auto Training</h6>
-                                <p>Tự động huấn luyện AI</p>
-                            </div>
-                            <div class="ai-feature-arrow">
-                                <i class="fas fa-chevron-right"></i>
-                            </div>
-                        </div>
                 </div>
             </div>
         </div>
@@ -689,8 +641,8 @@ try {
             // Show typing indicator
             showAIChatbotTyping();
             
-            // Send to Linh2Store Chatbot API
-            fetch('api/Linh2Store-chatbot.php', {
+            // Send to Simple Chatbot API
+            fetch('api/simple-chatbot.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -705,12 +657,12 @@ try {
                 if (data.success) {
                     addAIChatbotMessage('bot', data.response);
                 } else {
-                    addAIChatbotMessage('bot', 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.');
+                    addAIChatbotMessage('bot', 'lỗi luôn');
                 }
             })
             .catch(error => {
                 hideAIChatbotTyping();
-                addAIChatbotMessage('bot', 'Xin lỗi, có lỗi kết nối. Vui lòng thử lại.');
+                addAIChatbotMessage('bot', 'lỗi luôn');
             });
         }
         
@@ -725,13 +677,8 @@ try {
             `;
             messagesDiv.appendChild(messageDiv);
             
-            // Hide quick actions after first user message
-            if (sender === 'user') {
-                const quickActions = document.getElementById('quick-actions');
-                if (quickActions) {
-                    quickActions.style.display = 'none';
-                }
-            }
+            // Keep quick actions visible for easy access
+            // Quick actions will always be available for user convenience
             
             // Smooth scroll to bottom
             setTimeout(() => {
@@ -796,21 +743,6 @@ try {
             return conversationId;
         }
         
-        function openAIRecommendations() {
-            window.open('ai-demo.php', '_blank');
-        }
-        
-        function openAISentiment() {
-            window.open('ai-sentiment-demo.php', '_blank');
-        }
-        
-        function openAITraining() {
-            window.open('ai-training-dashboard.php', '_blank');
-        }
-        
-        function openAIAutoTraining() {
-            window.open('ai-auto-training.php', '_blank');
-        }
         
         function scrollToBottom() {
             const messagesDiv = document.getElementById('ai-chatbot-messages');
@@ -851,6 +783,16 @@ try {
                 sendAIChatbotMessage();
             }
         });
+        
+        // Show Quick Actions
+        function showQuickActions() {
+            const quickActions = document.getElementById('quick-actions');
+            if (quickActions) {
+                quickActions.style.display = 'block';
+                // Scroll to quick actions
+                quickActions.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
         
         // Add scroll event listener when AI hub is opened
         function toggleAIHub() {
@@ -1151,6 +1093,14 @@ try {
         
         .ai-chat-input button:hover {
             background: #d81b60;
+        }
+        
+        #show-quick-actions {
+            background: #4CAF50 !important;
+        }
+        
+        #show-quick-actions:hover {
+            background: #45a049 !important;
         }
         
         /* AI Features Menu */
