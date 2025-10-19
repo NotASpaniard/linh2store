@@ -117,7 +117,7 @@ class AITraining {
      * Calculate confidence score
      */
     private function calculateConfidence($userMessage, $botResponse) {
-        // Simple confidence calculation based on response length and keywords
+        // Linh2Store confidence calculation based on response length and keywords
         $confidence = 0.5; // Base confidence
         
         // Increase confidence for longer, more detailed responses

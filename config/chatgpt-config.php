@@ -10,7 +10,7 @@ define('CHATGPT_API_URL', 'https://api.openai.com/v1/chat/completions');
 define('CHATGPT_MODEL', 'gpt-3.5-turbo');
 
 // DeepSeek Configuration (PRIMARY - FREE & POWERFUL)
-define('DEEPSEEK_API_KEY', 'sk-your-deepseek-api-key-here');
+define('DEEPSEEK_API_KEY', 'sk-adec0b5c4bec4ea084a6f7dfb80c0555');
 define('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions');
 define('DEEPSEEK_MODEL', 'deepseek-chat');
 

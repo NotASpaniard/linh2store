@@ -566,14 +566,14 @@ try {
                             <i class="fas fa-robot"></i>
                         </div>
                         <div class="ai-chat-info">
-                            <h5>AI Chatbot</h5>
+                            <h5>Linh2Store AI Assistant</h5>
                             <span class="ai-chat-status">Online</span>
                         </div>
                     </div>
                     <div class="ai-chat-messages" id="ai-chatbot-messages">
                         <div class="ai-message bot">
                             <div class="message-content">
-                                <div class="message-text">Xin chào! Tôi có thể giúp bạn tìm sản phẩm, kiểm tra đơn hàng, hoặc trả lời câu hỏi.</div>
+                                <div class="message-text">👋 Xin chào! Tôi có thể giúp bạn:<br>• 💰 Thông tin giá sản phẩm<br>• 🚚 Thông tin giao hàng<br>• 🔄 Chính sách đổi trả<br>• 🎉 Khuyến mãi hiện tại<br>• 🛒 Hướng dẫn đặt hàng<br>• 📞 Thông tin liên hệ</div>
                             </div>
                         </div>
                         
@@ -581,22 +581,22 @@ try {
                         <div class="quick-actions" id="quick-actions">
                             <div class="quick-actions-title">💡 Tôi có thể giúp bạn:</div>
                             <div class="quick-actions-buttons">
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Tìm son môi màu đỏ')">
-                                    🔍 Tìm sản phẩm
+                                <button class="quick-action-btn" onclick="sendQuickMessage('giá son môi')">
+                                    💰 Giá sản phẩm
                                 </button>
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Kiểm tra đơn hàng')">
-                                    📦 Kiểm tra đơn hàng
-                                </button>
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Thương hiệu nào có?')">
-                                    🏷️ Thương hiệu
-                                </button>
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Giao hàng như thế nào?')">
+                                <button class="quick-action-btn" onclick="sendQuickMessage('ship hàng')">
                                     🚚 Giao hàng
                                 </button>
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Thanh toán')">
-                                    💳 Thanh toán
+                                <button class="quick-action-btn" onclick="sendQuickMessage('đổi trả')">
+                                    🔄 Đổi trả
                                 </button>
-                                <button class="quick-action-btn" onclick="sendQuickMessage('Liên hệ')">
+                                <button class="quick-action-btn" onclick="sendQuickMessage('khuyến mãi')">
+                                    🎉 Khuyến mãi
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('đặt hàng')">
+                                    🛒 Đặt hàng
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('liên hệ')">
                                     📞 Liên hệ
                                 </button>
                             </div>
@@ -689,15 +689,13 @@ try {
             // Show typing indicator
             showAIChatbotTyping();
             
-            // Send to API
-            fetch('api/ai-chatbot.php', {
+            // Send to Linh2Store Chatbot API
+            fetch('api/Linh2Store-chatbot.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    action: 'send_message',
-                    conversation_id: getOrCreateConversationId(),
                     message: message
                 })
             })
@@ -705,7 +703,7 @@ try {
             .then(data => {
                 hideAIChatbotTyping();
                 if (data.success) {
-                    addAIChatbotMessage('bot', data.response.text);
+                    addAIChatbotMessage('bot', data.response);
                 } else {
                     addAIChatbotMessage('bot', 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.');
                 }

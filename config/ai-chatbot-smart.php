@@ -1,144 +1,49 @@
 <?php
 /**
- * AI Chatbot with ChatGPT Integration
- * Linh2Store - Chatbot tích hợp ChatGPT/DeepSeek
+ * AI Chatbot Smart
+ * Linh2Store - Chatbot thông minh với logic hoàn toàn mới
  */
 
-class AIChatbotChatGPT {
+require_once __DIR__ . '/database.php';
+
+class AIChatbotSmart {
     private $db;
-    private $apiKey;
-    private $apiUrl;
     
     public function __construct() {
         $this->db = new Database();
-        require_once __DIR__ . '/chatgpt-config.php';
-        // Sử dụng DeepSeek làm primary, ChatGPT làm backup
-        $this->apiKey = DEEPSEEK_API_KEY;
-        $this->apiUrl = DEEPSEEK_API_URL;
     }
     
     /**
-     * Xử lý tin nhắn với ChatGPT
+     * Xử lý tin nhắn
      */
-    public function processMessage($message, $conversationId = null, $userId = null) {
-        // Lấy lịch sử cuộc trò chuyện
-        $conversationHistory = $this->getConversationHistory($conversationId);
-        
-        // Tạo prompt hoàn chỉnh
-        $systemPrompt = $this->createSystemPrompt();
-        $conversationContext = $this->createConversationContext($conversationHistory);
-        
-        // Gọi ChatGPT API
-        $response = $this->callChatGPTAPI($systemPrompt, $conversationContext, $message);
-        
-        // Lưu cuộc trò chuyện
-        $this->saveConversation($conversationId, $userId, $message, $response);
-        
-        return $response;
-    }
-    
-    /**
-     * Tạo system prompt hoàn chỉnh
-     */
-    private function createSystemPrompt() {
-        return SYSTEM_PROMPT;
-    }
-    
-    /**
-     * Tạo ngữ cảnh cuộc trò chuyện
-     */
-    private function createConversationContext($conversationHistory) {
-        $context = [];
-        
-        foreach ($conversationHistory as $msg) {
-            $context[] = [
-                'role' => $msg['role'] === 'user' ? 'user' : 'assistant',
-                'content' => $msg['message']
-            ];
+    public function processMessage($userMessage, $conversationId) {
+        try {
+            // Lưu tin nhắn user
+            $this->saveMessage($conversationId, $userMessage, 'user');
+            
+            // Lấy lịch sử hội thoại
+            $conversationHistory = $this->getConversationHistory($conversationId);
+            
+            // Phân tích ngữ cảnh thông minh
+            $context = $this->analyzeSmartContext($userMessage, $conversationHistory);
+            
+            // Tạo phản hồi thông minh
+            $response = $this->generateSmartResponse($context, $userMessage, $conversationHistory);
+            
+            // Lưu phản hồi
+            $this->saveMessage($conversationId, $response, 'assistant');
+            
+            return $response;
+            
+        } catch (Exception $e) {
+            return "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.";
         }
-        
-        return $context;
     }
     
     /**
-     * Gọi DeepSeek API với fallback thông minh
+     * Phân tích ngữ cảnh thông minh
      */
-    private function callChatGPTAPI($systemPrompt, $conversationContext, $userMessage) {
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => $systemPrompt
-            ]
-        ];
-        
-        // Thêm lịch sử cuộc trò chuyện
-        foreach ($conversationContext as $msg) {
-            $messages[] = $msg;
-        }
-        
-        // Thêm tin nhắn hiện tại
-        $messages[] = [
-            'role' => 'user',
-            'content' => $userMessage
-        ];
-        
-        $data = [
-            'model' => DEEPSEEK_MODEL,
-            'messages' => $messages,
-            'max_tokens' => MAX_TOKENS,
-            'temperature' => TEMPERATURE
-        ];
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiKey
-        ]);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        // Nếu DeepSeek API lỗi, fallback về logic thông minh
-        if ($httpCode !== 200) {
-            return $this->fallbackIntelligentResponse($userMessage, $conversationContext);
-        }
-        
-        $result = json_decode($response, true);
-        
-        if (isset($result['error'])) {
-            return $this->fallbackIntelligentResponse($userMessage, $conversationContext);
-        }
-        
-        return $result['choices'][0]['message']['content'];
-    }
-    
-    /**
-     * Fallback thông minh khi API lỗi
-     */
-    private function fallbackIntelligentResponse($userMessage, $conversationContext) {
-        // Tạo conversation history từ context
-        $conversationHistory = [];
-        foreach ($conversationContext as $msg) {
-            $conversationHistory[] = [
-                'message' => $msg['content'],
-                'role' => $msg['role']
-            ];
-        }
-        
-        // Phân tích ngữ cảnh thông minh
-        $context = $this->analyzeFallbackContext($userMessage, $conversationHistory);
-        return $this->generateFallbackResponse($context, $userMessage, $conversationHistory);
-    }
-    
-    /**
-     * Phân tích ngữ cảnh fallback
-     */
-    private function analyzeFallbackContext($message, $conversationHistory) {
+    private function analyzeSmartContext($message, $conversationHistory) {
         $message = strtolower(trim($message));
         
         // Kiểm tra xem có đang trong quy trình tư vấn không
@@ -189,9 +94,9 @@ class AIChatbotChatGPT {
     }
     
     /**
-     * Tạo phản hồi fallback
+     * Tạo phản hồi thông minh
      */
-    private function generateFallbackResponse($context, $message, $conversationHistory) {
+    private function generateSmartResponse($context, $message, $conversationHistory) {
         switch ($context['type']) {
             case 'consultation_continue':
                 return $this->handleConsultationContinue($context['stage'], $message);
@@ -343,46 +248,34 @@ class AIChatbotChatGPT {
      * Lấy lịch sử cuộc trò chuyện
      */
     private function getConversationHistory($conversationId) {
-        if (!$conversationId) return [];
-        
         try {
             $conn = $this->db->getConnection();
             $stmt = $conn->prepare("
-                SELECT message, role 
+                SELECT message, role, created_at 
                 FROM ai_chatbot_conversations 
                 WHERE conversation_id = ? 
                 ORDER BY created_at ASC
             ");
             $stmt->execute([$conversationId]);
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return [];
         }
     }
     
     /**
-     * Lưu cuộc trò chuyện
+     * Lưu tin nhắn
      */
-    private function saveConversation($conversationId, $userId, $userMessage, $botResponse) {
+    private function saveMessage($conversationId, $message, $role) {
         try {
             $conn = $this->db->getConnection();
-            
-            // Lưu tin nhắn người dùng
             $stmt = $conn->prepare("
-                INSERT INTO ai_chatbot_conversations (conversation_id, user_id, message, role, created_at) 
-                VALUES (?, ?, ?, 'user', NOW())
+                INSERT INTO ai_chatbot_conversations (conversation_id, message, role, created_at) 
+                VALUES (?, ?, ?, NOW())
             ");
-            $stmt->execute([$conversationId, $userId, $userMessage]);
-            
-            // Lưu phản hồi bot
-            $stmt = $conn->prepare("
-                INSERT INTO ai_chatbot_conversations (conversation_id, user_id, message, role, created_at) 
-                VALUES (?, ?, ?, 'assistant', NOW())
-            ");
-            $stmt->execute([$conversationId, $userId, $botResponse]);
-            
+            $stmt->execute([$conversationId, $message, $role]);
         } catch (Exception $e) {
-            // Log error but don't break the flow
+            // Ignore database errors
         }
     }
 }
