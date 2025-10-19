@@ -49,14 +49,16 @@ class AIInventoryOptimization {
             $products = $this->getAllProducts();
             
             foreach ($products as $product) {
-                // Check low stock
-                if ($product['stock_quantity'] <= $product['reorder_point']) {
+                // Check low stock (using default reorder point of 10)
+                $reorderPoint = 10;
+                if ($product['stock_quantity'] <= $reorderPoint) {
                     $alerts[] = $this->createAlert($product['id'], 'low_stock', 'high', 
-                        "Sản phẩm {$product['name']} sắp hết hàng. Cần nhập thêm {$product['reorder_quantity']} sản phẩm.");
+                        "Sản phẩm {$product['name']} sắp hết hàng. Cần nhập thêm sản phẩm.");
                 }
                 
-                // Check overstock
-                if ($product['stock_quantity'] > $product['max_stock'] * 1.5) {
+                // Check overstock (using default max stock of 100)
+                $maxStock = 100;
+                if ($product['stock_quantity'] > $maxStock * 1.5) {
                     $alerts[] = $this->createAlert($product['id'], 'overstock', 'medium', 
                         "Sản phẩm {$product['name']} tồn kho quá nhiều. Cần giảm giá hoặc tăng cường marketing.");
                 }

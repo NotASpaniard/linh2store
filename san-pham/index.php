@@ -1148,7 +1148,7 @@ $total_pages = ceil($total_products / $limit);
                         <p class="product-brand">${product.brand_name || 'Thương hiệu'}</p>
                         <p class="product-price">${product.price.toLocaleString()}đ</p>
                         <div class="product-actions">
-                            <button class="btn btn-primary add-to-cart" data-product-id="${product.id}">
+                            <button class="btn btn-primary add-to-cart" data-product-id="${product.id}" onclick="addToCart(${product.id})">
                                 <i class="fas fa-cart-plus"></i> Thêm vào giỏ
                             </button>
                         </div>

@@ -1,64 +1,91 @@
 -- AI Fraud Detection Schema
--- Linh2Store - Advanced AI Fraud Prevention
+-- Linh2Store - AI Fraud Detection Database Schema
 
--- AI Fraud Alerts
+-- Fraud alerts table
 CREATE TABLE IF NOT EXISTS ai_fraud_alerts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    alert_type ENUM('payment', 'account', 'transaction', 'behavioral') NOT NULL,
+    alert_type ENUM('suspicious_payment', 'multiple_failed_attempts', 'unusual_location', 'rapid_successive_orders', 'account_takeover') NOT NULL,
     severity ENUM('low', 'medium', 'high', 'critical') NOT NULL,
-    customer_id INT NULL,
-    order_id INT NULL,
+    description TEXT NOT NULL,
     fraud_score DECIMAL(3,2) NOT NULL,
-    risk_factors JSON,
-    recommended_action ENUM('monitor', 'block', 'verify', 'approve') NOT NULL,
+    user_id INT NULL,
+    transaction_id INT NULL,
     is_resolved BOOLEAN DEFAULT FALSE,
-    resolved_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_alert_type (alert_type),
-    INDEX idx_severity (severity),
-    INDEX idx_fraud_score (fraud_score)
+    resolved_at TIMESTAMP NULL,
+    INDEX idx_alert_severity (alert_type, severity, is_resolved)
 );
 
--- AI Payment Fraud Detection
+-- Payment fraud analysis table
 CREATE TABLE IF NOT EXISTS ai_payment_fraud (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    transaction_id VARCHAR(100) NOT NULL,
-    payment_method VARCHAR(50) NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
+    transaction_id INT NOT NULL,
+    payment_method ENUM('credit_card', 'debit_card', 'bank_transfer', 'e_wallet', 'cryptocurrency') NOT NULL,
     fraud_probability DECIMAL(3,2) NOT NULL,
-    risk_indicators JSON,
-    device_fingerprint VARCHAR(255),
-    ip_address VARCHAR(45),
-    location_data JSON,
+    risk_factors TEXT,
+    is_blocked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_transaction (transaction_id),
-    INDEX idx_fraud_probability (fraud_probability)
+    INDEX idx_transaction_fraud (transaction_id, fraud_probability)
 );
 
--- AI Account Security
+-- Account security table
 CREATE TABLE IF NOT EXISTS ai_account_security (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
+    user_id INT NOT NULL,
     security_score DECIMAL(3,2) NOT NULL,
-    login_anomalies JSON,
-    device_trust_score DECIMAL(3,2) DEFAULT 0.00,
-    location_anomalies JSON,
-    behavior_patterns JSON,
-    last_analysis TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_security (customer_id),
-    INDEX idx_security_score (security_score)
+    device_trust_score DECIMAL(3,2) NOT NULL,
+    login_anomalies INT DEFAULT 0,
+    last_analysis TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_security (user_id, security_score)
 );
 
--- AI Transaction Monitoring
+-- Transaction monitoring table
 CREATE TABLE IF NOT EXISTS ai_transaction_monitoring (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
+    transaction_id INT NOT NULL,
     monitoring_score DECIMAL(3,2) NOT NULL,
-    velocity_checks JSON,
-    pattern_analysis JSON,
-    geo_verification JSON,
-    device_analysis JSON,
+    anomaly_detected BOOLEAN DEFAULT FALSE,
+    risk_level ENUM('low', 'medium', 'high', 'critical') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_order_monitoring (order_id),
-    INDEX idx_monitoring_score (monitoring_score)
+    INDEX idx_transaction_monitoring (transaction_id, risk_level)
+);
+
+-- Geographic analysis table
+CREATE TABLE IF NOT EXISTS ai_geographic_analysis (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    is_suspicious BOOLEAN DEFAULT FALSE,
+    risk_score DECIMAL(3,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_geo (user_id, is_suspicious)
+);
+
+-- Behavioral analysis table
+CREATE TABLE IF NOT EXISTS ai_behavioral_analysis (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    behavior_score DECIMAL(3,2) NOT NULL,
+    anomaly_detected BOOLEAN DEFAULT FALSE,
+    risk_level ENUM('low', 'medium', 'high', 'critical') NOT NULL,
+    behavior_patterns TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_behavior (user_id, risk_level)
+);
+
+-- Risk scoring table
+CREATE TABLE IF NOT EXISTS ai_risk_scoring (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    overall_risk_score DECIMAL(3,2) NOT NULL,
+    payment_risk DECIMAL(3,2) NOT NULL,
+    account_risk DECIMAL(3,2) NOT NULL,
+    behavioral_risk DECIMAL(3,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_risk (user_id, overall_risk_score)
 );

@@ -1,73 +1,75 @@
--- AI Inventory Optimization Schema
--- Linh2Store - Advanced AI Inventory Management
+-- AI Inventory Optimization System Schema
+-- Linh2Store - AI Inventory Optimization Database Schema
 
--- AI Inventory Predictions
-CREATE TABLE IF NOT EXISTS ai_inventory_predictions (
+-- Demand forecasts table
+CREATE TABLE IF NOT EXISTS ai_demand_forecasts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
-    prediction_date DATE NOT NULL,
+    forecast_date DATE NOT NULL,
     predicted_demand INT NOT NULL,
-    confidence_score DECIMAL(3,2) DEFAULT 0.00,
-    algorithm_used VARCHAR(50) DEFAULT 'ensemble',
+    confidence_score DECIMAL(3,2) NOT NULL,
+    model_used VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_product_date (product_id, prediction_date),
-    INDEX idx_confidence (confidence_score)
+    INDEX idx_product_forecast (product_id, forecast_date)
 );
 
--- AI Stock Alerts
+-- Stock alerts table
 CREATE TABLE IF NOT EXISTS ai_stock_alerts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
-    alert_type ENUM('low_stock', 'overstock', 'expiring', 'trending') NOT NULL,
+    alert_type ENUM('low_stock', 'overstock', 'reorder_point', 'expiry_warning') NOT NULL,
     severity ENUM('low', 'medium', 'high', 'critical') NOT NULL,
     message TEXT NOT NULL,
     recommended_action TEXT,
     is_resolved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP NULL,
-    INDEX idx_product_alert (product_id, alert_type),
-    INDEX idx_severity (severity),
-    INDEX idx_resolved (is_resolved)
+    INDEX idx_product_alert (product_id, alert_type, is_resolved)
 );
 
--- AI Demand Patterns
-CREATE TABLE IF NOT EXISTS ai_demand_patterns (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    pattern_type ENUM('seasonal', 'trending', 'declining', 'stable') NOT NULL,
-    pattern_data JSON,
-    confidence_score DECIMAL(3,2) DEFAULT 0.00,
-    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_product_pattern (product_id, pattern_type),
-    INDEX idx_confidence (confidence_score)
-);
-
--- AI Supplier Recommendations
+-- Supplier recommendations table
 CREATE TABLE IF NOT EXISTS ai_supplier_recommendations (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    supplier_id INT,
-    recommendation_type ENUM('restock', 'switch_supplier', 'negotiate_price', 'bulk_order') NOT NULL,
-    priority_score DECIMAL(3,2) DEFAULT 0.00,
-    reasoning TEXT,
-    estimated_savings DECIMAL(10,2) DEFAULT 0.00,
+    supplier_id INT NOT NULL,
+    recommendation_type ENUM('bulk_purchase', 'negotiate_price', 'alternative_supplier', 'payment_terms') NOT NULL,
+    reasoning TEXT NOT NULL,
+    priority_score DECIMAL(3,2) NOT NULL,
+    estimated_savings DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_product_supplier (product_id, supplier_id),
-    INDEX idx_priority (priority_score)
+    INDEX idx_supplier_priority (supplier_id, priority_score)
 );
 
--- AI Inventory Analytics
-CREATE TABLE IF NOT EXISTS ai_inventory_analytics (
+-- Warehouse efficiency table
+CREATE TABLE IF NOT EXISTS ai_warehouse_efficiency (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    analysis_date DATE NOT NULL,
-    total_products INT NOT NULL,
-    low_stock_count INT DEFAULT 0,
-    overstock_count INT DEFAULT 0,
-    turnover_rate DECIMAL(5,2) DEFAULT 0.00,
-    carrying_cost DECIMAL(10,2) DEFAULT 0.00,
-    optimization_score DECIMAL(3,2) DEFAULT 0.00,
-    recommendations_count INT DEFAULT 0,
+    warehouse_zone VARCHAR(50) NOT NULL,
+    efficiency_score DECIMAL(3,2) NOT NULL,
+    throughput_rate DECIMAL(8,2) NOT NULL,
+    space_utilization DECIMAL(3,2) NOT NULL,
+    date_recorded DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_analysis_date (analysis_date)
+    INDEX idx_zone_date (warehouse_zone, date_recorded)
+);
+
+-- Inventory patterns table
+CREATE TABLE IF NOT EXISTS ai_inventory_patterns (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    pattern_type ENUM('seasonal', 'trend', 'cyclical', 'irregular') NOT NULL,
+    pattern_strength DECIMAL(3,2) NOT NULL,
+    pattern_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_product_pattern (product_id, pattern_type)
+);
+
+-- Predictive maintenance table
+CREATE TABLE IF NOT EXISTS ai_predictive_maintenance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    equipment_id VARCHAR(50) NOT NULL,
+    maintenance_type ENUM('preventive', 'corrective', 'predictive') NOT NULL,
+    predicted_failure_date DATE,
+    confidence_score DECIMAL(3,2) NOT NULL,
+    recommended_actions TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_equipment_date (equipment_id, predicted_failure_date)
 );

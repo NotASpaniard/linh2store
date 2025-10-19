@@ -1,78 +1,85 @@
 -- AI Customer Behavior Analysis Schema
--- Linh2Store - Advanced Customer Behavior AI
+-- Linh2Store - AI Customer Behavior Analysis Database Schema
 
--- AI Customer Segments
+-- Customer segments table
 CREATE TABLE IF NOT EXISTS ai_customer_segments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    segment_name VARCHAR(100) NOT NULL,
-    segment_description TEXT,
-    criteria JSON NOT NULL,
-    customer_count INT DEFAULT 0,
-    avg_order_value DECIMAL(10,2) DEFAULT 0.00,
-    avg_purchase_frequency DECIMAL(5,2) DEFAULT 0.00,
-    churn_probability DECIMAL(3,2) DEFAULT 0.00,
+    user_id INT NOT NULL,
+    segment_type ENUM('VIP', 'Loyal', 'Regular', 'New', 'At_Risk') NOT NULL,
+    segment_score DECIMAL(3,2) NOT NULL,
+    segment_factors TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_segment_name (segment_name)
+    INDEX idx_user_segment (user_id, segment_type)
 );
 
--- AI Customer Lifetime Value
-CREATE TABLE IF NOT EXISTS ai_customer_lifetime_value (
+-- Churn predictions table
+CREATE TABLE IF NOT EXISTS ai_churn_predictions (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
-    predicted_clv DECIMAL(10,2) NOT NULL,
-    confidence_score DECIMAL(3,2) DEFAULT 0.00,
-    calculation_method VARCHAR(50) DEFAULT 'rfm_analysis',
-    last_calculation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_clv (customer_id),
-    INDEX idx_predicted_clv (predicted_clv)
-);
-
--- AI Customer Churn Predictions
-CREATE TABLE IF NOT EXISTS ai_customer_churn_predictions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
+    user_id INT NOT NULL,
     churn_probability DECIMAL(3,2) NOT NULL,
-    risk_level ENUM('low', 'medium', 'high', 'critical') NOT NULL,
-    risk_factors JSON,
-    recommended_actions JSON,
-    prediction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_churn (customer_id),
-    INDEX idx_risk_level (risk_level)
-);
-
--- AI Customer Purchase Patterns
-CREATE TABLE IF NOT EXISTS ai_customer_purchase_patterns (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
-    pattern_type ENUM('frequency', 'seasonal', 'trending', 'declining') NOT NULL,
-    pattern_data JSON,
-    confidence_score DECIMAL(3,2) DEFAULT 0.00,
-    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_pattern (customer_id, pattern_type)
-);
-
--- AI Customer Recommendations
-CREATE TABLE IF NOT EXISTS ai_customer_recommendations (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
-    recommendation_type ENUM('product', 'category', 'brand', 'price') NOT NULL,
-    recommended_items JSON,
-    priority_score DECIMAL(3,2) DEFAULT 0.00,
-    reasoning TEXT,
+    risk_factors TEXT,
+    recommended_actions TEXT,
+    prediction_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_rec (customer_id),
-    INDEX idx_priority (priority_score)
+    INDEX idx_user_churn (user_id, churn_probability)
 );
 
--- AI Customer Engagement Score
-CREATE TABLE IF NOT EXISTS ai_customer_engagement (
+-- Lifetime value predictions table
+CREATE TABLE IF NOT EXISTS ai_lifetime_value (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,
+    user_id INT NOT NULL,
+    predicted_clv DECIMAL(12,2) NOT NULL,
+    confidence_score DECIMAL(3,2) NOT NULL,
+    factors TEXT,
+    prediction_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_clv (user_id, predicted_clv)
+);
+
+-- Purchase patterns table
+CREATE TABLE IF NOT EXISTS ai_purchase_patterns (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    pattern_type ENUM('frequency', 'seasonal', 'price_sensitivity', 'brand_loyalty') NOT NULL,
+    pattern_value DECIMAL(5,4) NOT NULL,
+    pattern_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_pattern (user_id, pattern_type)
+);
+
+-- Personalization scores table
+CREATE TABLE IF NOT EXISTS ai_personalization_scores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    personalization_score DECIMAL(3,2) NOT NULL,
+    preferences TEXT,
+    recommendations TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_personalization (user_id, personalization_score)
+);
+
+-- Engagement metrics table
+CREATE TABLE IF NOT EXISTS ai_engagement_metrics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     engagement_score DECIMAL(3,2) NOT NULL,
-    engagement_factors JSON,
-    last_activity TIMESTAMP,
-    score_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_customer_engagement (customer_id),
-    INDEX idx_engagement_score (engagement_score)
+    last_activity_date DATE,
+    activity_frequency INT NOT NULL,
+    preferred_channels TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_engagement (user_id, engagement_score)
+);
+
+-- Anomaly detection table
+CREATE TABLE IF NOT EXISTS ai_anomaly_detection (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    anomaly_type ENUM('unusual_purchase', 'suspicious_activity', 'behavior_change') NOT NULL,
+    anomaly_score DECIMAL(3,2) NOT NULL,
+    description TEXT,
+    is_resolved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_anomaly (user_id, anomaly_type, is_resolved)
 );
