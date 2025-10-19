@@ -63,7 +63,7 @@ try {
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>
@@ -304,7 +304,7 @@ try {
                     <h3>Liên hệ</h3>
                     <ul>
                         <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
-                        <li><i class="fas fa-phone"></i> 1900 1234</li>
+                        <li><i class="fas fa-phone"></i> 1900 JQKA</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
                 </div>

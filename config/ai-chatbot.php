@@ -5,15 +5,24 @@
  */
 
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/ai-training.php';
+require_once __DIR__ . '/ai-nlp.php';
+require_once __DIR__ . '/ai-beauty-advisor.php';
 
 class AIChatbot {
     private $db;
     private $conn;
     private $config;
+    private $training;
+    private $nlp;
+    private $beautyAdvisor;
     
     public function __construct() {
         $this->db = new Database();
         $this->conn = $this->db->getConnection();
+        $this->training = new AITraining();
+        $this->nlp = new AINLP();
+        $this->beautyAdvisor = new AIBeautyAdvisor();
         $this->loadConfig();
     }
     
@@ -112,16 +121,65 @@ class AIChatbot {
         // Save bot response
         $this->sendMessage($conversationId, 'bot', $response['text'], $response['type'], $response['metadata']);
         
+        // Train AI with this conversation
+        $this->training->trainWithConversation($userMessage, $response['text'], [
+            'conversation_id' => $conversationId,
+            'user_id' => $userId,
+            'response_type' => $response['type'],
+            'metadata' => $response['metadata']
+        ]);
+        
         return $response;
     }
     
     /**
-     * Generate AI response
+     * Generate AI response using Beauty Advisor
      */
     private function generateResponse($userMessage, $conversationId, $userId) {
-        // 1. Check knowledge base
+        // 1. Get conversation history for Beauty Advisor
+        $conversationHistory = $this->getConversationHistory($conversationId);
+        
+        // 2. Analyze consultation needs using Beauty Advisor
+        $consultationAnalysis = $this->beautyAdvisor->analyzeConsultation($userMessage, $conversationHistory);
+        
+        // 3. Generate professional consultation response
+        if ($consultationAnalysis['needs_follow_up'] || $consultationAnalysis['stage'] !== 'default') {
+            $beautyResponse = $this->beautyAdvisor->generateConsultationResponse(
+                $consultationAnalysis['stage'], 
+                $userMessage, 
+                $conversationHistory
+            );
+            
+            return [
+                'text' => $beautyResponse,
+                'type' => 'text',
+                'metadata' => [
+                    'source' => 'beauty_advisor',
+                    'stage' => $consultationAnalysis['stage'],
+                    'consultation_mode' => true
+                ]
+            ];
+        }
+        
+        // 4. Fallback to NLP analysis
+        $intentAnalysis = $this->nlp->analyzeIntent($userMessage);
+        $entities = $this->nlp->extractEntities($userMessage);
+        
+        // 5. Check if message is unclear
+        if ($this->nlp->isUnclear($userMessage, $intentAnalysis['intent'], $intentAnalysis['confidence'])) {
+            $clarificationQuestions = $this->nlp->generateClarificationQuestions($intentAnalysis['intent'], $entities);
+            $randomQuestion = $clarificationQuestions[array_rand($clarificationQuestions)];
+            
+            return [
+                'text' => "Tôi hiểu bạn đang cần hỗ trợ. " . $randomQuestion,
+                'type' => 'text',
+                'metadata' => ['source' => 'nlp_clarification', 'intent' => $intentAnalysis['intent'], 'confidence' => $intentAnalysis['confidence']]
+            ];
+        }
+        
+        // 6. Try knowledge base first (for exact matches)
         $knowledgeResponse = $this->searchKnowledgeBase($userMessage);
-        if ($knowledgeResponse) {
+        if ($knowledgeResponse && $intentAnalysis['confidence'] < 0.7) {
             return [
                 'text' => $knowledgeResponse['answer'],
                 'type' => 'text',
@@ -129,20 +187,163 @@ class AIChatbot {
             ];
         }
         
-        // 2. Check for product search
+        // 7. Generate contextual response using NLP
+        if ($intentAnalysis['confidence'] >= 0.3) {
+            $contextualResponse = $this->nlp->generateContextualResponse($intentAnalysis['intent'], $entities, $userMessage);
+            
+            // Enhance response with specific handlers
+            $enhancedResponse = $this->enhanceResponse($intentAnalysis['intent'], $entities, $contextualResponse, $userId);
+            
+            return [
+                'text' => $enhancedResponse,
+                'type' => 'text',
+                'metadata' => [
+                    'source' => 'nlp_contextual',
+                    'intent' => $intentAnalysis['intent'],
+                    'confidence' => $intentAnalysis['confidence'],
+                    'entities' => $entities
+                ]
+            ];
+        }
+        
+        // 8. Fallback to traditional handlers
         $productResponse = $this->handleProductSearch($userMessage);
         if ($productResponse) {
             return $productResponse;
         }
         
-        // 3. Check for order tracking
         $orderResponse = $this->handleOrderTracking($userMessage, $userId);
         if ($orderResponse) {
             return $orderResponse;
         }
         
-        // 4. Default response
+        // 9. Default response
         return $this->getDefaultResponse($userMessage);
+    }
+    
+    /**
+     * Enhance response with specific handlers
+     */
+    private function enhanceResponse($intent, $entities, $baseResponse, $userId) {
+        switch ($intent) {
+            case 'product_search':
+                if (isset($entities['product']) && isset($entities['color'])) {
+                    // Add specific product recommendations
+                    $baseResponse .= " Ví dụ: " . $this->getProductRecommendations($entities['product'], $entities['color']);
+                } elseif (isset($entities['brand'])) {
+                    // Add brand-specific information
+                    $baseResponse .= " " . $this->getBrandSpecificInfo($entities['brand']);
+                }
+                break;
+                
+            case 'price_inquiry':
+                if (isset($entities['product'])) {
+                    $baseResponse .= " " . $this->getProductPriceRange($entities['product']);
+                }
+                break;
+                
+            case 'shipping_info':
+                if (isset($entities['location'])) {
+                    $baseResponse .= " " . $this->getLocationSpecificShipping($entities['location']);
+                }
+                break;
+        }
+        
+        return $baseResponse;
+    }
+    
+    /**
+     * Get product recommendations
+     */
+    private function getProductRecommendations($product, $color) {
+        $recommendations = [
+            'son môi' => [
+                'đỏ' => 'MAC Ruby Woo, Dior 999, Chanel Rouge Allure',
+                'hồng' => 'MAC Pink Plaid, Dior Addict, Chanel Rouge Coco',
+                'nude' => 'MAC Velvet Teddy, Dior Addict Beige, Chanel Rouge Coco Shine'
+            ],
+            'kem nền' => [
+                'default' => 'MAC Studio Fix, Dior Forever, Chanel Vitalumière'
+            ]
+        ];
+        
+        if (isset($recommendations[$product][$color])) {
+            return "Gợi ý: " . $recommendations[$product][$color];
+        } elseif (isset($recommendations[$product]['default'])) {
+            return "Gợi ý: " . $recommendations[$product]['default'];
+        }
+        
+        return "";
+    }
+    
+    /**
+     * Get brand-specific information
+     */
+    private function getBrandSpecificInfo($brand) {
+        $brandInfo = [
+            'mac' => 'MAC nổi tiếng với son môi matte và kem nền chuyên nghiệp.',
+            'dior' => 'Dior là thương hiệu luxury với son Rouge Dior và kem nền Forever.',
+            'chanel' => 'Chanel đại diện cho sự sang trọng với son Rouge Allure và kem nền Vitalumière.'
+        ];
+        
+        return $brandInfo[$brand] ?? '';
+    }
+    
+    /**
+     * Get product price range
+     */
+    private function getProductPriceRange($product) {
+        $priceRanges = [
+            'son môi' => 'Giá từ 200k-800k tùy thương hiệu.',
+            'kem nền' => 'Giá từ 400k-1.2tr tùy thương hiệu.',
+            'phấn mắt' => 'Giá từ 300k-1tr tùy thương hiệu.'
+        ];
+        
+        return $priceRanges[$product] ?? 'Giá dao động tùy thương hiệu và loại sản phẩm.';
+    }
+    
+    /**
+     * Get location-specific shipping
+     */
+    private function getLocationSpecificShipping($location) {
+        if (strpos($location, 'hồ chí minh') !== false || strpos($location, 'hcm') !== false) {
+            return 'Khu vực HCM: Giao hàng 1-2 ngày, phí ship 30k.';
+        } elseif (strpos($location, 'hà nội') !== false) {
+            return 'Khu vực Hà Nội: Giao hàng 1-2 ngày, phí ship 30k.';
+        }
+        
+        return 'Khu vực khác: Giao hàng 2-3 ngày, phí ship 30k.';
+    }
+    
+    /**
+     * Get conversation history
+     */
+    private function getConversationHistory($conversationId) {
+        try {
+            $sql = "SELECT sender_type, message_text, created_at 
+                    FROM chat_messages 
+                    WHERE conversation_id = ? 
+                    ORDER BY created_at ASC 
+                    LIMIT 10";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$conversationId]);
+            $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $history = [];
+            foreach ($messages as $msg) {
+                $history[] = [
+                    'sender' => $msg['sender_type'],
+                    'text' => $msg['message_text'],
+                    'timestamp' => $msg['created_at']
+                ];
+            }
+            
+            return $history;
+            
+        } catch (Exception $e) {
+            return [];
+        }
     }
     
     /**
@@ -151,15 +352,13 @@ class AIChatbot {
     private function searchKnowledgeBase($query) {
         $sql = "SELECT * FROM ai_knowledge_base 
                 WHERE is_active = 1 
-                AND (MATCH(question, answer, keywords) AGAINST(? IN NATURAL LANGUAGE MODE)
-                     OR question LIKE ? OR answer LIKE ?)
-                ORDER BY priority DESC, 
-                         MATCH(question, answer, keywords) AGAINST(? IN NATURAL LANGUAGE MODE) DESC
+                AND (question LIKE ? OR answer LIKE ? OR keywords LIKE ?)
+                ORDER BY priority DESC
                 LIMIT 1";
         
         $searchTerm = "%$query%";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$query, $searchTerm, $searchTerm, $query]);
+        $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
         
         return $stmt->fetch();
     }
@@ -339,7 +538,7 @@ class AIChatbot {
      * Extract order ID from message
      */
     private function extractOrderId($message) {
-        // Look for order ID pattern (e.g., "DH123456", "ORDER-123", "123456")
+        // Look for order ID pattern (e.g., "DHJQKA56", "ORDER-123", "JQKA56")
         if (preg_match('/(?:DH|ORDER-|#)?(\d{6,})/i', $message, $matches)) {
             return $matches[1];
         }
@@ -370,19 +569,6 @@ class AIChatbot {
                "Tổng tiền: " . number_format($order['total_amount']) . "đ";
     }
     
-    /**
-     * Get conversation history
-     */
-    public function getConversationHistory($conversationId, $limit = 20) {
-        $sql = "SELECT * FROM chat_messages 
-                WHERE conversation_id = ? 
-                ORDER BY created_at ASC 
-                LIMIT ?";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$conversationId, $limit]);
-        return $stmt->fetchAll();
-    }
     
     /**
      * Get active conversations
@@ -465,7 +651,7 @@ class AIChatbot {
                     AVG(CASE WHEN m.sender_type = 'bot' THEN 1 ELSE 0 END) as bot_response_rate
                 FROM chat_conversations c 
                 LEFT JOIN chat_messages m ON c.id = m.conversation_id 
-                WHERE c.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+                WHERE c.started_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
         
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();

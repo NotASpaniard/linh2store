@@ -16,11 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../config/ai-chatbot.php';
-require_once __DIR__ . '/../config/auth-middleware.php';
 
 try {
     $chatbot = new AIChatbot();
+    
+    // Get action from different sources
     $action = $_GET['action'] ?? $_POST['action'] ?? '';
+    
+    // If no action in GET/POST, try to get from JSON input
+    if (empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $action = $input['action'] ?? '';
+    }
     
     switch ($action) {
         case 'start_conversation':
@@ -67,8 +74,8 @@ try {
  * Start a new conversation
  */
 function handleStartConversation($chatbot) {
-    $userId = AuthMiddleware::getCurrentUser()['id'] ?? null;
-    $sessionId = $_POST['session_id'] ?? null;
+    $userId = null; // Allow anonymous users
+    $sessionId = session_id() ?: uniqid('session_', true);
     
     $result = $chatbot->startConversation($userId, $sessionId);
     
@@ -90,7 +97,7 @@ function handleSendMessage($chatbot) {
         throw new Exception('Missing required parameters');
     }
     
-    $userId = AuthMiddleware::getCurrentUser()['id'] ?? null;
+    $userId = null; // Allow anonymous users
     $response = $chatbot->processMessage($conversationId, $message, $userId);
     
     echo json_encode([
@@ -122,7 +129,7 @@ function handleGetHistory($chatbot) {
  * Get active conversations
  */
 function handleGetActiveConversations($chatbot) {
-    $userId = AuthMiddleware::getCurrentUser()['id'] ?? null;
+    $userId = null; // Allow anonymous users
     $conversations = $chatbot->getActiveConversations($userId);
     
     echo json_encode([
@@ -164,7 +171,7 @@ function handleAddFeedback($chatbot) {
         throw new Exception('Missing required parameters');
     }
     
-    $userId = AuthMiddleware::getCurrentUser()['id'] ?? null;
+    $userId = null; // Allow anonymous users
     $success = $chatbot->addFeedback($conversationId, $messageId, $userId, $feedbackType, $feedbackText);
     
     echo json_encode([

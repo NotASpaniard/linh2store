@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liên hệ - Linh2Store</title>
-    <meta name="description" content="Liên hệ với Linh2Store - Cửa hàng son môi và mỹ phẩm cao cấp. Hotline: 1900 1234, Email: info@linh2store.com">
+    <meta name="description" content="Liên hệ với Linh2Store - Cửa hàng son môi và mỹ phẩm cao cấp. Hotline: 1900 JQKA, Email: info@linh2store.com">
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>
@@ -204,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="contact-details">
                                     <h3>Điện thoại</h3>
-                                    <p>Hotline: 1900 1234<br>Mobile: 0909 123 456</p>
+                                    <p>Hotline: 1900 JQKA<br>Mobile: 0909 123 456</p>
                                 </div>
                             </div>
                             
@@ -289,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Bạn có thể đặt hàng trực tiếp trên website hoặc gọi hotline 1900 1234. Chúng tôi sẽ hỗ trợ bạn trong suốt quá trình đặt hàng.</p>
+                        <p>Bạn có thể đặt hàng trực tiếp trên website hoặc gọi hotline 1900 JQKA. Chúng tôi sẽ hỗ trợ bạn trong suốt quá trình đặt hàng.</p>
                     </div>
                 </div>
                 
@@ -366,7 +366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3>Liên hệ</h3>
                     <ul>
                         <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
-                        <li><i class="fas fa-phone"></i> 1900 1234</li>
+                        <li><i class="fas fa-phone"></i> 1900 JQKA</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
                 </div>

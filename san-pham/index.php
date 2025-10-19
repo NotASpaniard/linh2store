@@ -139,7 +139,7 @@ $total_pages = ceil($total_products / $limit);
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>
@@ -324,8 +324,7 @@ $total_pages = ceil($total_products / $limit);
                                                 <span class="price-old"><?php echo number_format($product['sale_price']); ?>đ</span>
                                             <?php endif; ?>
                                         </div>
-                                        <button class="btn btn-primary add-to-cart" 
-                                                data-product-id="<?php echo $product['id']; ?>">
+                                        <button class="btn btn-primary add-to-cart" data-product-id="<?php echo $product['id']; ?>">
                                             <i class="fas fa-cart-plus"></i>
                                             Thêm vào giỏ
                                         </button>
@@ -375,7 +374,7 @@ $total_pages = ceil($total_products / $limit);
         </div>
     </div>
 
-    <!-- main.js đã được xóa để tránh xung đột -->
+    <script src="../assets/js/main.js"></script>
     
     <!-- JavaScript đã được tắt hoàn toàn để tránh xung đột -->
         <!-- Tất cả JavaScript đã được tắt hoàn toàn -->
@@ -1111,7 +1110,7 @@ $total_pages = ceil($total_products / $limit);
             loadingDiv.style.display = 'block';
             recommendationsDiv.innerHTML = '';
             
-            fetch('api/ai-recommendations.php?action=get_recommendations&limit=6')
+            fetch('../api/ai-recommendations.php?action=get_recommendations&limit=6')
                 .then(response => response.json())
                 .then(data => {
                     loadingDiv.style.display = 'none';

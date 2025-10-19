@@ -279,7 +279,7 @@ class CouponSystem {
      * Tạo mã giảm giá tự động
      */
     public static function generateCouponCode($length = 8) {
-        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0JQKA56789';
         $code = '';
         
         for ($i = 0; $i < $length; $i++) {

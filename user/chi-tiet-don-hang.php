@@ -75,7 +75,7 @@ if (!$order) {
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>
@@ -291,7 +291,7 @@ if (!$order) {
                                     <div class="bank-info">
                                         <h4>Thông tin chuyển khoản:</h4>
                                         <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                                        <p><strong>STK:</strong> 1234567890</p>
+                                        <p><strong>STK:</strong> JQKA567890</p>
                                         <p><strong>Chủ TK:</strong> Linh2Store</p>
                                         <p><strong>Nội dung:</strong> <?php echo $order['order_number']; ?></p>
                                     </div>

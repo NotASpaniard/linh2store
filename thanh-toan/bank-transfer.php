@@ -371,7 +371,7 @@ if (!$order) {
                         <div class="bank-details">
                             <div class="bank-detail">
                                 <span class="bank-detail-label">Số tài khoản:</span>
-                                <span class="bank-detail-value" id="account1">1234567890</span>
+                                <span class="bank-detail-value" id="account1">JQKA567890</span>
                                 <button class="copy-btn" onclick="copyToClipboard('account1')">Copy</button>
                             </div>
                             <div class="bank-detail">

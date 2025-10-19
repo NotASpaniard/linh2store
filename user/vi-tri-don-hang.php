@@ -23,7 +23,7 @@ $order_locations = [
             ['step' => 'Đơn hàng sẽ được giao tại TP. Hồ Chí Minh', 'time' => '2025-10-15 14:00', 'status' => 'pending']
         ],
         'carrier' => 'Viettel Post',
-        'tracking_number' => 'VT123456789'
+        'tracking_number' => 'VTJQKA56789'
     ],
     [
         'order_id' => 2,

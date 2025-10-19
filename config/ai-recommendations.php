@@ -71,7 +71,7 @@ class AIRecommendations {
      * Get recommendations for a user
      */
     public function getRecommendations($userId, $limit = null) {
-        $limit = $limit ?? $this->getConfig('max_recommendations_per_user', 10);
+        $limit = $limit ?? (int)$this->getConfig('max_recommendations_per_user', 10);
         
         // Clear expired recommendations
         $this->clearExpiredRecommendations();
@@ -96,15 +96,16 @@ class AIRecommendations {
      * Get existing recommendations
      */
     private function getExistingRecommendations($userId) {
-        $sql = "SELECT r.*, p.name, p.price, p.image, p.slug, b.name as brand_name
+        $limit = (int)$this->getConfig('max_recommendations_per_user', 10);
+        $sql = "SELECT r.*, p.name, p.price, b.name as brand_name
                 FROM ai_recommendations r
                 JOIN products p ON r.product_id = p.id
                 LEFT JOIN brands b ON p.brand_id = b.id
                 WHERE r.user_id = ? AND (r.expires_at IS NULL OR r.expires_at > NOW())
                 ORDER BY r.score DESC
-                LIMIT ?";
+                LIMIT " . $limit;
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$userId, $this->getConfig('max_recommendations_per_user', 10)]);
+        $stmt->execute([$userId]);
         return $stmt->fetchAll();
     }
     
@@ -142,7 +143,7 @@ class AIRecommendations {
      * Collaborative Filtering - Find users with similar behavior
      */
     private function getCollaborativeRecommendations($userId, $limit) {
-        $sql = "SELECT p.id, p.name, p.price, p.image, p.slug, b.name as brand_name,
+        $sql = "SELECT p.id, p.name, p.price, b.name as brand_name,
                        COUNT(*) as interaction_count,
                        AVG(CASE WHEN ub.action_type = 'purchase' THEN 1 ELSE 0.5 END) as score
                 FROM products p
@@ -165,11 +166,11 @@ class AIRecommendations {
                 GROUP BY p.id
                 HAVING score >= ?
                 ORDER BY score DESC, interaction_count DESC
-                LIMIT ?";
+                LIMIT " . $limit;
         
-        $minScore = $this->getConfig('min_similarity_threshold', 0.3);
+        $minScore = (float)$this->getConfig('min_similarity_threshold', 0.3);
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$userId, $userId, $userId, $minScore, $limit]);
+        $stmt->execute([$userId, $userId, $userId, $minScore]);
         
         $results = $stmt->fetchAll();
         return array_map(function($item) {
@@ -188,7 +189,7 @@ class AIRecommendations {
             return [];
         }
         
-        $sql = "SELECT p.id, p.name, p.price, p.image, p.slug, b.name as brand_name,
+        $sql = "SELECT p.id, p.name, p.price, b.name as brand_name,
                        SUM(pf.importance_score * ?) as score
                 FROM products p
                 LEFT JOIN brands b ON p.brand_id = b.id
@@ -203,9 +204,9 @@ class AIRecommendations {
                 GROUP BY p.id
                 HAVING score >= ?
                 ORDER BY score DESC
-                LIMIT ?";
+                LIMIT " . $limit;
         
-        $params = array_merge([$userFeatures], [$userId], array_keys($userFeatures), [$this->getConfig('min_similarity_threshold', 0.3), $limit]);
+        $params = array_merge([$userFeatures], [$userId], array_keys($userFeatures), [(float)$this->getConfig('min_similarity_threshold', 0.3)]);
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         
@@ -220,9 +221,9 @@ class AIRecommendations {
      * Get trending products
      */
     private function getTrendingRecommendations($userId, $limit) {
-        $trendingWindow = $this->getConfig('trending_window_days', 30);
+        $trendingWindow = (int)$this->getConfig('trending_window_days', 30);
         
-        $sql = "SELECT p.id, p.name, p.price, p.image, p.slug, b.name as brand_name,
+        $sql = "SELECT p.id, p.name, p.price, b.name as brand_name,
                        COUNT(*) as interaction_count,
                        COUNT(*) / DATEDIFF(NOW(), MIN(ub.created_at)) as trend_score
                 FROM products p
@@ -238,11 +239,11 @@ class AIRecommendations {
                 GROUP BY p.id
                 HAVING trend_score >= ?
                 ORDER BY trend_score DESC, interaction_count DESC
-                LIMIT ?";
+                LIMIT " . $limit;
         
-        $minTrendScore = $this->getConfig('min_similarity_threshold', 0.3);
+        $minTrendScore = (float)$this->getConfig('min_similarity_threshold', 0.3);
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$trendingWindow, $userId, $minTrendScore, $limit]);
+        $stmt->execute([$trendingWindow, $userId, $minTrendScore]);
         
         $results = $stmt->fetchAll();
         return array_map(function($item) {
@@ -279,7 +280,7 @@ class AIRecommendations {
      * Store recommendations in database
      */
     private function storeRecommendations($userId, $recommendations) {
-        $expiryDays = $this->getConfig('recommendation_expiry_days', 7);
+        $expiryDays = (int)$this->getConfig('recommendation_expiry_days', 7);
         $expiryDate = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));
         
         $sql = "INSERT INTO ai_recommendations (user_id, product_id, recommendation_type, score, expires_at) 
@@ -301,9 +302,13 @@ class AIRecommendations {
      * Clear expired recommendations
      */
     private function clearExpiredRecommendations() {
-        $sql = "DELETE FROM ai_recommendations WHERE expires_at IS NOT NULL AND expires_at < NOW()";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
+        // Check if expires_at column exists first
+        $checkColumn = $this->conn->query("SHOW COLUMNS FROM ai_recommendations LIKE 'expires_at'");
+        if ($checkColumn->rowCount() > 0) {
+            $sql = "DELETE FROM ai_recommendations WHERE expires_at IS NOT NULL AND expires_at < NOW()";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+        }
     }
     
     /**
@@ -333,17 +338,17 @@ class AIRecommendations {
      * Get similar products for a given product
      */
     public function getSimilarProducts($productId, $limit = 5) {
-        $sql = "SELECT p.id, p.name, p.price, p.image, p.slug, b.name as brand_name,
+        $sql = "SELECT p.id, p.name, p.price, b.name as brand_name,
                        ps.similarity_score as score
                 FROM product_similarity ps
                 JOIN products p ON ps.product_b_id = p.id
                 LEFT JOIN brands b ON p.brand_id = b.id
                 WHERE ps.product_a_id = ? AND p.status = 'active'
                 ORDER BY ps.similarity_score DESC
-                LIMIT ?";
+                LIMIT " . $limit;
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$productId, $limit]);
+        $stmt->execute([$productId]);
         return $stmt->fetchAll();
     }
     

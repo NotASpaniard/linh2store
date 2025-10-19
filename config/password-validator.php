@@ -184,7 +184,7 @@ class PasswordValidator {
         
         // Kiểm tra mật khẩu phổ biến
         $common_passwords = [
-            'password', '123456', '123456789', 'qwerty', 'abc123',
+            'password', 'JQKA56', 'JQKA56789', 'qwerty', 'abc123',
             'password123', 'admin', 'letmein', 'welcome', 'monkey'
         ];
         

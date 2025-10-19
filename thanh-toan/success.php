@@ -437,7 +437,7 @@ if (!$order) {
                     <h3><i class="fas fa-university"></i> Thông tin chuyển khoản</h3>
                     <p>Vui lòng chuyển khoản số tiền <strong><?php echo number_format($order['final_amount'], 0, ',', '.'); ?>đ</strong> đến tài khoản:</p>
                     <p><strong>Ngân hàng:</strong> Vietcombank<br>
-                    <strong>STK:</strong> 1234567890<br>
+                    <strong>STK:</strong> JQKA567890<br>
                     <strong>Chủ TK:</strong> Linh2Store<br>
                     <strong>Nội dung:</strong> <?php echo $order['order_number']; ?></p>
                 </div>

@@ -77,11 +77,21 @@ class AuthMiddleware {
      */
     public static function getToken() {
         // Thử lấy từ Authorization header
-        $headers = getallheaders();
-        if (isset($headers['Authorization'])) {
-            $auth_header = $headers['Authorization'];
-            if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
-                return $matches[1];
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization'])) {
+                $auth_header = $headers['Authorization'];
+                if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+                    return $matches[1];
+                }
+            }
+        } else {
+            // Fallback for CLI or non-Apache servers
+            if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+                $auth_header = $_SERVER['HTTP_AUTHORIZATION'];
+                if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+                    return $matches[1];
+                }
             }
         }
         

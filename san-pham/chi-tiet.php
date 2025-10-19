@@ -124,7 +124,7 @@ try {
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>

@@ -64,7 +64,7 @@ try {
             <div class="container">
                 <div class="row justify-between align-center">
                     <div class="col">
-                        <p><i class="fas fa-phone"></i> Hotline: 1900 1234</p>
+                        <p><i class="fas fa-phone"></i> Hotline: 1900 JQKA</p>
                     </div>
                     <div class="col">
                         <p><i class="fas fa-truck"></i> Miễn phí ship đơn từ 500k</p>
@@ -86,14 +86,6 @@ try {
                         <a href="thuong-hieu/" class="nav-link">Thương hiệu</a>
                         <a href="blog/" class="nav-link">Blog</a>
                         <a href="lien-he/" class="nav-link">Liên hệ</a>
-                        <div class="nav-dropdown">
-                            <a href="#" class="nav-link">🤖 AI Features</a>
-                            <div class="dropdown-content">
-                                <a href="ai-demo.php">AI Recommendations</a>
-                                <a href="ai-chatbot-demo.php">AI Chatbot</a>
-                                <a href="ai-sentiment-demo.php">AI Sentiment</a>
-                            </div>
-                        </div>
                     </nav>
                     
                     <!-- Search Bar -->
@@ -122,11 +114,6 @@ try {
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="header-cart-count">0</span>
                         </a>
-                        
-                        <!-- AI Chatbot Button -->
-                        <button class="chatbot-toggle" title="Trợ lý AI" onclick="toggleChatbot()">
-                            <i class="fas fa-robot"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -327,7 +314,7 @@ try {
                     <h3>Liên hệ</h3>
                     <ul>
                         <li><i class="fas fa-map-marker-alt"></i> 8910 Đường JQK, Quận A, Sảnh Rồng</li>
-                        <li><i class="fas fa-phone"></i> 1900 1234</li>
+                        <li><i class="fas fa-phone"></i> 1900 JQKA</li>
                         <li><i class="fas fa-envelope"></i> info@linh2store.com</li>
                     </ul>
                 </div>
@@ -555,53 +542,152 @@ try {
         }
     </style>
     
-    <!-- AI Chatbot Widget -->
-    <div id="chatbot-widget" class="chatbot-widget" style="display: none;">
-        <div class="chatbot-header">
-            <h4>🤖 Trợ lý AI Linh2Store</h4>
-            <button onclick="toggleChatbot()" class="chatbot-close">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="chatbot-messages" id="chatbot-messages">
-            <div class="chatbot-message bot">
-                <div class="message-content">
-                    <div class="message-text">Xin chào! Tôi là trợ lý ảo của Linh2Store. Tôi có thể giúp bạn tìm sản phẩm, kiểm tra đơn hàng, hoặc trả lời câu hỏi. Bạn cần hỗ trợ gì?</div>
+    <!-- Floating AI Hub -->
+    <div id="ai-hub" class="ai-hub">
+        <!-- AI Hub Toggle Button -->
+        <button class="ai-hub-toggle" onclick="toggleAIHub()">
+            <i class="fas fa-robot"></i>
+        </button>
+        
+        <!-- AI Hub Panel -->
+        <div id="ai-hub-panel" class="ai-hub-panel" style="display: none;">
+            <div class="ai-hub-header">
+                <h4>🤖 AI Assistant Hub</h4>
+                <button onclick="toggleAIHub()" class="ai-hub-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="ai-hub-content">
+                <!-- AI Chatbot Chat -->
+                <div id="ai-chatbot-chat" class="ai-chat-section">
+                    <div class="ai-chat-header">
+                        <div class="ai-chat-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ai-chat-info">
+                            <h5>AI Chatbot</h5>
+                            <span class="ai-chat-status">Online</span>
+                        </div>
+                    </div>
+                    <div class="ai-chat-messages" id="ai-chatbot-messages">
+                        <div class="ai-message bot">
+                            <div class="message-content">
+                                <div class="message-text">Xin chào! Tôi có thể giúp bạn tìm sản phẩm, kiểm tra đơn hàng, hoặc trả lời câu hỏi.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="quick-actions" id="quick-actions">
+                            <div class="quick-actions-title">💡 Tôi có thể giúp bạn:</div>
+                            <div class="quick-actions-buttons">
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Tìm son môi màu đỏ')">
+                                    🔍 Tìm sản phẩm
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Kiểm tra đơn hàng')">
+                                    📦 Kiểm tra đơn hàng
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Thương hiệu nào có?')">
+                                    🏷️ Thương hiệu
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Giao hàng như thế nào?')">
+                                    🚚 Giao hàng
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Thanh toán')">
+                                    💳 Thanh toán
+                                </button>
+                                <button class="quick-action-btn" onclick="sendQuickMessage('Liên hệ')">
+                                    📞 Liên hệ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Scroll to bottom button -->
+                    <button class="scroll-to-bottom" id="scroll-to-bottom" onclick="scrollToBottom()" style="display: none;">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="ai-chat-input">
+                        <input type="text" id="ai-chatbot-input" placeholder="Nhập tin nhắn..." maxlength="500">
+                        <button onclick="sendAIChatbotMessage()" id="ai-chatbot-send">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- AI Features Menu -->
+                <div class="ai-features-menu">
+                    <div class="ai-feature-item" onclick="openAIRecommendations()">
+                        <div class="ai-feature-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="ai-feature-info">
+                            <h6>AI Recommendations</h6>
+                            <p>Gợi ý sản phẩm thông minh</p>
+                        </div>
+                        <div class="ai-feature-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    
+                        <div class="ai-feature-item" onclick="openAISentiment()">
+                            <div class="ai-feature-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="ai-feature-info">
+                                <h6>AI Sentiment Analysis</h6>
+                                <p>Phân tích cảm xúc đánh giá</p>
+                            </div>
+                            <div class="ai-feature-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-feature-item" onclick="openAITraining()">
+                            <div class="ai-feature-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="ai-feature-info">
+                                <h6>AI Training Dashboard</h6>
+                                <p>Huấn luyện AI thông minh</p>
+                            </div>
+                            <div class="ai-feature-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-feature-item" onclick="openAIAutoTraining()">
+                            <div class="ai-feature-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <div class="ai-feature-info">
+                                <h6>AI Auto Training</h6>
+                                <p>Tự động huấn luyện AI</p>
+                            </div>
+                            <div class="ai-feature-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
                 </div>
             </div>
-        </div>
-        <div class="chatbot-input">
-            <input type="text" id="chatbot-input" placeholder="Nhập tin nhắn của bạn..." maxlength="500">
-            <button onclick="sendChatbotMessage()" id="chatbot-send">
-                <i class="fas fa-paper-plane"></i>
-            </button>
         </div>
     </div>
     
     <script>
-        // AI Chatbot Functions
-        function toggleChatbot() {
-            const widget = document.getElementById('chatbot-widget');
-            if (widget.style.display === 'none') {
-                widget.style.display = 'block';
-                document.getElementById('chatbot-input').focus();
-            } else {
-                widget.style.display = 'none';
-            }
-        }
+        // AI Hub Functions
         
-        function sendChatbotMessage() {
-            const input = document.getElementById('chatbot-input');
+        function sendAIChatbotMessage() {
+            const input = document.getElementById('ai-chatbot-input');
             const message = input.value.trim();
             
             if (!message) return;
             
             // Add user message
-            addChatbotMessage('user', message);
+            addAIChatbotMessage('user', message);
             input.value = '';
             
             // Show typing indicator
-            showChatbotTyping();
+            showAIChatbotTyping();
             
             // Send to API
             fetch('api/ai-chatbot.php', {
@@ -617,37 +703,52 @@ try {
             })
             .then(response => response.json())
             .then(data => {
-                hideChatbotTyping();
+                hideAIChatbotTyping();
                 if (data.success) {
-                    addChatbotMessage('bot', data.response.text);
+                    addAIChatbotMessage('bot', data.response.text);
                 } else {
-                    addChatbotMessage('bot', 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.');
+                    addAIChatbotMessage('bot', 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.');
                 }
             })
             .catch(error => {
-                hideChatbotTyping();
-                addChatbotMessage('bot', 'Xin lỗi, có lỗi kết nối. Vui lòng thử lại.');
+                hideAIChatbotTyping();
+                addAIChatbotMessage('bot', 'Xin lỗi, có lỗi kết nối. Vui lòng thử lại.');
             });
         }
         
-        function addChatbotMessage(sender, text) {
-            const messagesDiv = document.getElementById('chatbot-messages');
+        function addAIChatbotMessage(sender, text) {
+            const messagesDiv = document.getElementById('ai-chatbot-messages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `chatbot-message ${sender}`;
+            messageDiv.className = `ai-message ${sender}`;
             messageDiv.innerHTML = `
                 <div class="message-content">
                     <div class="message-text">${text}</div>
                 </div>
             `;
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Hide quick actions after first user message
+            if (sender === 'user') {
+                const quickActions = document.getElementById('quick-actions');
+                if (quickActions) {
+                    quickActions.style.display = 'none';
+                }
+            }
+            
+            // Smooth scroll to bottom
+            setTimeout(() => {
+                messagesDiv.scrollTo({
+                    top: messagesDiv.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
         
-        function showChatbotTyping() {
-            const messagesDiv = document.getElementById('chatbot-messages');
+        function showAIChatbotTyping() {
+            const messagesDiv = document.getElementById('ai-chatbot-messages');
             const typingDiv = document.createElement('div');
-            typingDiv.className = 'chatbot-message bot typing';
-            typingDiv.id = 'chatbot-typing';
+            typingDiv.className = 'ai-message bot typing';
+            typingDiv.id = 'ai-chatbot-typing';
             typingDiv.innerHTML = `
                 <div class="message-content">
                     <div class="message-text">
@@ -659,11 +760,18 @@ try {
                 </div>
             `;
             messagesDiv.appendChild(typingDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Smooth scroll to bottom
+            setTimeout(() => {
+                messagesDiv.scrollTo({
+                    top: messagesDiv.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
         
-        function hideChatbotTyping() {
-            const typing = document.getElementById('chatbot-typing');
+        function hideAIChatbotTyping() {
+            const typing = document.getElementById('ai-chatbot-typing');
             if (typing) typing.remove();
         }
         
@@ -690,167 +798,427 @@ try {
             return conversationId;
         }
         
-        // Handle Enter key in chatbot input
-        document.getElementById('chatbot-input').addEventListener('keypress', function(e) {
+        function openAIRecommendations() {
+            window.open('ai-demo.php', '_blank');
+        }
+        
+        function openAISentiment() {
+            window.open('ai-sentiment-demo.php', '_blank');
+        }
+        
+        function openAITraining() {
+            window.open('ai-training-dashboard.php', '_blank');
+        }
+        
+        function openAIAutoTraining() {
+            window.open('ai-auto-training.php', '_blank');
+        }
+        
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('ai-chatbot-messages');
+            messagesDiv.scrollTo({
+                top: messagesDiv.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+        
+        function sendQuickMessage(message) {
+            // Hide quick actions after first interaction
+            const quickActions = document.getElementById('quick-actions');
+            if (quickActions) {
+                quickActions.style.display = 'none';
+            }
+            
+            // Set input value and send message
+            const input = document.getElementById('ai-chatbot-input');
+            input.value = message;
+            sendAIChatbotMessage();
+        }
+        
+        // Check if user is at bottom of chat
+        function checkScrollPosition() {
+            const messagesDiv = document.getElementById('ai-chatbot-messages');
+            const scrollButton = document.getElementById('scroll-to-bottom');
+            
+            if (messagesDiv.scrollTop + messagesDiv.clientHeight >= messagesDiv.scrollHeight - 10) {
+                scrollButton.style.display = 'none';
+            } else {
+                scrollButton.style.display = 'block';
+            }
+        }
+        
+        // Handle Enter key in AI chatbot input
+        document.getElementById('ai-chatbot-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                sendChatbotMessage();
+                sendAIChatbotMessage();
             }
         });
+        
+        // Add scroll event listener when AI hub is opened
+        function toggleAIHub() {
+            const panel = document.getElementById('ai-hub-panel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                document.getElementById('ai-chatbot-input').focus();
+                
+                // Add scroll event listener
+                const messagesDiv = document.getElementById('ai-chatbot-messages');
+                messagesDiv.addEventListener('scroll', checkScrollPosition);
+                
+                // Initial check
+                setTimeout(checkScrollPosition, 100);
+            } else {
+                panel.style.display = 'none';
+            }
+        }
     </script>
     
     <style>
-        /* AI Chatbot Widget Styles */
-        .chatbot-widget {
+        /* Floating AI Hub Styles */
+        .ai-hub {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 350px;
-            height: 500px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
         }
         
-        .chatbot-header {
-            background: #EC407A;
+        .ai-hub-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EC407A, #E91E63);
             color: white;
-            padding: 15px;
-            border-radius: 10px 10px 0 0;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(236, 64, 122, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ai-hub-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(236, 64, 122, 0.6);
+        }
+        
+        .ai-hub-panel {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .ai-hub-header {
+            background: linear-gradient(135deg, #EC407A, #E91E63);
+            color: white;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .chatbot-header h4 {
+        .ai-hub-header h4 {
             margin: 0;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 600;
         }
         
-        .chatbot-close {
+        .ai-hub-close {
             background: none;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
         }
         
-        .chatbot-messages {
+        .ai-hub-close:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .ai-hub-content {
             flex: 1;
-            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* AI Chat Section */
+        .ai-chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ai-chat-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .ai-chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EC407A, #E91E63);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .ai-chat-info h5 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .ai-chat-status {
+            font-size: 12px;
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px 20px;
             overflow-y: auto;
             background: #f8f9fa;
+            scroll-behavior: smooth;
+            max-height: 400px;
+            /* Custom scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: #EC407A #f8f9fa;
         }
         
-        .chatbot-message {
+        .ai-chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .ai-chat-messages::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        
+        .ai-chat-messages::-webkit-scrollbar-thumb {
+            background: #EC407A;
+            border-radius: 3px;
+        }
+        
+        .ai-chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #d81b60;
+        }
+        
+        /* Scroll to bottom button */
+        .scroll-to-bottom {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #EC407A;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(236, 64, 122, 0.3);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .scroll-to-bottom:hover {
+            background: #d81b60;
+            transform: scale(1.1);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .quick-actions-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .quick-actions-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .quick-action-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        .quick-action-btn:hover {
+            background: #EC407A;
+            color: white;
+            border-color: #EC407A;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(236, 64, 122, 0.3);
+        }
+        
+        .ai-message {
             margin-bottom: 15px;
             display: flex;
         }
         
-        .chatbot-message.user {
+        .ai-message.user {
             justify-content: flex-end;
         }
         
-        .chatbot-message.bot {
+        .ai-message.bot {
             justify-content: flex-start;
         }
         
-        .chatbot-message .message-content {
+        .ai-message .message-content {
             max-width: 80%;
-            padding: 10px 15px;
+            padding: 12px 16px;
             border-radius: 18px;
         }
         
-        .chatbot-message.user .message-content {
+        .ai-message.user .message-content {
             background: #EC407A;
             color: white;
         }
         
-        .chatbot-message.bot .message-content {
+        .ai-message.bot .message-content {
             background: white;
             color: #333;
-            border: 1px solid #eee;
+            border: 1px solid #e9ecef;
         }
         
-        .chatbot-message.typing .message-content {
+        .ai-message.typing .message-content {
             background: #e9ecef;
             color: #666;
         }
         
-        .chatbot-input {
-            padding: 15px;
+        .ai-chat-input {
+            padding: 15px 20px;
             background: white;
-            border-top: 1px solid #eee;
             display: flex;
             gap: 10px;
+            border-top: 1px solid #eee;
         }
         
-        .chatbot-input input {
+        .ai-chat-input input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-        }
-        
-        .chatbot-input button {
-            padding: 10px 15px;
-            background: #EC407A;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        
-        .chatbot-toggle {
-            background: #EC407A;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            margin-left: 10px;
-        }
-        
-        .chatbot-toggle:hover {
-            background: #d81b60;
-        }
-        
-        /* Navigation Dropdown */
-        .nav-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .nav-dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 1000;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .dropdown-content a {
-            color: #333;
             padding: 12px 16px;
-            text-decoration: none;
-            display: block;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .ai-chat-input button {
+            padding: 12px 16px;
+            background: #EC407A;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
             transition: background-color 0.3s;
         }
         
-        .dropdown-content a:hover {
-            background-color: #f8f9fa;
-            color: #EC407A;
+        .ai-chat-input button:hover {
+            background: #d81b60;
+        }
+        
+        /* AI Features Menu */
+        .ai-features-menu {
+            padding: 20px;
+            background: white;
+        }
+        
+        .ai-feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .ai-feature-item:hover {
+            background: #f8f9fa;
+            border-color: #EC407A;
+            transform: translateX(5px);
+        }
+        
+        .ai-feature-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EC407A, #E91E63);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        
+        .ai-feature-info {
+            flex: 1;
+        }
+        
+        .ai-feature-info h6 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .ai-feature-info p {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .ai-feature-arrow {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .ai-hub-panel {
+                width: 320px;
+                height: 500px;
+            }
         }
     </style>
 </body>

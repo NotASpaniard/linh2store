@@ -380,7 +380,7 @@ if (!$order) {
                     <h3><i class="fas fa-mobile-alt"></i> Thông tin MoMo</h3>
                     <div class="momo-detail">
                         <span class="momo-detail-label">Số điện thoại MoMo:</span>
-                        <span class="momo-detail-value">0901234567</span>
+                        <span class="momo-detail-value">090JQKA567</span>
                     </div>
                     <div class="momo-detail">
                         <span class="momo-detail-label">Tên người nhận:</span>
@@ -425,7 +425,7 @@ if (!$order) {
                         <div class="step-number">2</div>
                         <div class="step-content">
                             <div class="step-title">Quét mã QR hoặc chuyển khoản</div>
-                            <div class="step-description">Quét mã QR hoặc chuyển khoản đến số 0901234567</div>
+                            <div class="step-description">Quét mã QR hoặc chuyển khoản đến số 090JQKA567</div>
                         </div>
                     </div>
                     <div class="step">

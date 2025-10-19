@@ -51,6 +51,12 @@ if (empty($cart_items)) {
     header('Location: ../');
     exit();
 }
+
+// Xử lý lỗi từ URL
+$error_message = '';
+if (isset($_GET['error'])) {
+    $error_message = urldecode($_GET['error']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -351,10 +357,16 @@ if (empty($cart_items)) {
     <!-- Checkout Page -->
     <div class="checkout-page">
         <div class="checkout-container">
-            <div class="checkout-header">
-                <h1>Thanh toán</h1>
-                <p>Hoàn tất đơn hàng của bạn</p>
-            </div>
+        <div class="checkout-header">
+            <h1>Thanh toán</h1>
+            <p>Hoàn tất đơn hàng của bạn</p>
+            <?php if ($error_message): ?>
+                <div class="alert alert-error" style="background: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #c62828;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+        </div>
             
             <div class="checkout-content">
                 <!-- Checkout Form -->

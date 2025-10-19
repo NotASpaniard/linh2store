@@ -53,7 +53,7 @@ function addToCart(productId, colorId = null, quantity = 1) {
     if (colorId) formData.append('color_id', colorId);
     formData.append('quantity', quantity);
 
-    fetch('/linh2store/api/cart.php', {
+    fetch('../api/cart.php', {
             method: 'POST',
             body: formData
         })
@@ -80,7 +80,7 @@ function addToCart(productId, colorId = null, quantity = 1) {
 function removeFromCart(cartItemId) {
     showLoading();
 
-    fetch(`/linh2store/api/cart.php?id=${cartItemId}`, {
+    fetch(`../api/cart.php?id=${cartItemId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -107,7 +107,7 @@ function removeFromCart(cartItemId) {
  * Cập nhật số lượng giỏ hàng
  */
 function updateCartCount() {
-    fetch('/linh2store/api/cart.php')
+    fetch('../api/cart.php')
         .then(response => response.json())
         .then(data => {
             const cartCount = document.querySelector('.cart-count');
