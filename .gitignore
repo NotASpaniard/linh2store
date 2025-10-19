@@ -6,6 +6,10 @@ config/oauth-config.php
 config/oauth-credentials.php
 config/oauth-secrets.php
 
+# ChatGPT API Configuration - BẢO MẬT QUAN TRỌNG
+config/chatgpt-config.php
+config/ai-api-keys.php
+
 # Environment Variables
 .env
 .env.local

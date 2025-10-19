@@ -1,16 +1,21 @@
 <?php
 /**
- * ChatGPT Configuration
- * Linh2Store - Cấu hình API ChatGPT/DeepSeek
+ * ChatGPT Configuration Example
+ * Linh2Store - File cấu hình mẫu cho ChatGPT API
+ * 
+ * HƯỚNG DẪN:
+ * 1. Copy file này thành chatgpt-config.php
+ * 2. Thay đổi API Key thành key thực của bạn
+ * 3. File chatgpt-config.php sẽ được .gitignore để bảo mật
  */
 
-// ChatGPT Configuration (Backup)
+// ChatGPT Configuration
 define('CHATGPT_API_KEY', 'sk-proj-your-actual-api-key-here');
 define('CHATGPT_API_URL', 'https://api.openai.com/v1/chat/completions');
 define('CHATGPT_MODEL', 'gpt-3.5-turbo');
 
-// DeepSeek Configuration (PRIMARY - FREE & POWERFUL)
-define('DEEPSEEK_API_KEY', 'sk-your-deepseek-api-key-here');
+// DeepSeek Configuration (Alternative)
+define('DEEPSEEK_API_KEY', 'your-deepseek-api-key-here');
 define('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions');
 define('DEEPSEEK_MODEL', 'deepseek-chat');
 

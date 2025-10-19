@@ -12,8 +12,9 @@ class AIChatbotChatGPT {
     public function __construct() {
         $this->db = new Database();
         require_once __DIR__ . '/chatgpt-config.php';
-        $this->apiKey = CHATGPT_API_KEY;
-        $this->apiUrl = CHATGPT_API_URL;
+        // Sử dụng DeepSeek làm primary, ChatGPT làm backup
+        $this->apiKey = DEEPSEEK_API_KEY;
+        $this->apiUrl = DEEPSEEK_API_URL;
     }
     
     /**
@@ -82,7 +83,7 @@ class AIChatbotChatGPT {
         ];
         
         $data = [
-            'model' => CHATGPT_MODEL,
+            'model' => DEEPSEEK_MODEL,
             'messages' => $messages,
             'max_tokens' => MAX_TOKENS,
             'temperature' => TEMPERATURE
