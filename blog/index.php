@@ -5,119 +5,41 @@
  */
 
 require_once '../config/auth-middleware.php';
-require_once '../config/database.php';
+require_once '../config/blog.php';
 require_once '../config/image-helper.php';
 
-$posts = [];
-$featured_posts = [];
-$categories = [];
+$blogManager = new BlogManager();
+
+// Lấy parameters
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$categoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
+$tagId = isset($_GET['tag']) ? (int)$_GET['tag'] : null;
+$search = isset($_GET['search']) ? trim($_GET['search']) : null;
+
+$limit = 12;
+$offset = ($page - 1) * $limit;
 
 try {
-    $db = new Database();
-    $conn = $db->getConnection();
+    // Lấy dữ liệu từ database
+    $featured_posts = $blogManager->getFeaturedPosts(3);
+    $posts = $blogManager->getAllPosts($limit, $offset, $categoryId, $tagId, $search);
+    $categories = $blogManager->getAllCategories();
+    $tags = $blogManager->getAllTags();
+    $recent_posts = $blogManager->getRecentPosts(5);
     
-    // Lấy bài viết nổi bật
-    $stmt = $conn->prepare("
-        SELECT * FROM blog_posts 
-        WHERE status = 'published' AND featured = 1 
-        ORDER BY created_at DESC 
-        LIMIT 3
-    ");
-    $stmt->execute();
-    $featured_posts = $stmt->fetchAll();
-    
-    // Lấy tất cả bài viết
-    $stmt = $conn->prepare("
-        SELECT * FROM blog_posts 
-        WHERE status = 'published' 
-        ORDER BY created_at DESC 
-        LIMIT 12
-    ");
-    $stmt->execute();
-    $posts = $stmt->fetchAll();
-    
-    // Lấy danh mục blog
-    $stmt = $conn->prepare("
-        SELECT * FROM blog_categories 
-        WHERE status = 'active' 
-        ORDER BY name
-    ");
-    $stmt->execute();
-    $categories = $stmt->fetchAll();
+    // Tính tổng số bài viết cho pagination
+    $totalPosts = count($blogManager->getAllPosts(1000, 0, $categoryId, $tagId, $search));
+    $totalPages = ceil($totalPosts / $limit);
     
 } catch (Exception $e) {
     $posts = [];
     $featured_posts = [];
     $categories = [];
+    $tags = [];
+    $recent_posts = [];
+    $totalPages = 0;
 }
 
-// Nếu không có dữ liệu, tạo dữ liệu mẫu
-if (empty($posts)) {
-    $posts = [
-        [
-            'id' => 1,
-            'title' => 'Xu hướng son môi 2025: Những màu sắc hot nhất',
-            'excerpt' => 'Khám phá những xu hướng son môi mới nhất năm 2025, từ màu nude ấm áp đến những tông đỏ rực rỡ.',
-            'content' => 'Năm 2025 mang đến những xu hướng son môi vô cùng thú vị...',
-            'featured_image' => 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=600',
-            'created_at' => '2025-01-15 10:00:00',
-            'author' => 'Linh2Store Team',
-            'category' => 'Xu hướng làm đẹp'
-        ],
-        [
-            'id' => 2,
-            'title' => 'Cách chọn son môi phù hợp với tông da',
-            'excerpt' => 'Hướng dẫn chi tiết cách chọn màu son môi phù hợp với từng tông da để tôn lên vẻ đẹp tự nhiên.',
-            'content' => 'Việc chọn đúng màu son môi có thể thay đổi hoàn toàn gương mặt của bạn...',
-            'featured_image' => 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c0?w=600',
-            'created_at' => '2025-01-14 14:30:00',
-            'author' => 'Chuyên gia làm đẹp',
-            'category' => 'Tips làm đẹp'
-        ],
-        [
-            'id' => 3,
-            'title' => 'Review top 5 son môi MAC được yêu thích nhất',
-            'excerpt' => 'Đánh giá chi tiết 5 màu son môi MAC được các beauty blogger yêu thích nhất.',
-            'content' => 'MAC là một trong những thương hiệu son môi được yêu thích nhất...',
-            'featured_image' => 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c1?w=600',
-            'created_at' => '2025-01-13 09:15:00',
-            'author' => 'Beauty Reviewer',
-            'category' => 'Review sản phẩm'
-        ],
-        [
-            'id' => 4,
-            'title' => 'Cách bảo quản son môi để giữ được lâu',
-            'excerpt' => 'Những mẹo hay để bảo quản son môi đúng cách, giúp sản phẩm giữ được chất lượng tốt nhất.',
-            'content' => 'Son môi là một sản phẩm mỹ phẩm cần được bảo quản cẩn thận...',
-            'featured_image' => 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c2?w=600',
-            'created_at' => '2025-01-12 16:45:00',
-            'author' => 'Linh2Store Team',
-            'category' => 'Chăm sóc da'
-        ],
-        [
-            'id' => 5,
-            'title' => 'Son môi cho từng dịp: Công sở, hẹn hò, tiệc tùng',
-            'excerpt' => 'Gợi ý màu son môi phù hợp cho từng hoàn cảnh và dịp đặc biệt.',
-            'content' => 'Mỗi dịp khác nhau đòi hỏi một phong cách son môi khác nhau...',
-            'featured_image' => 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c3?w=600',
-            'created_at' => '2025-01-11 11:20:00',
-            'author' => 'Stylist',
-            'category' => 'Phong cách'
-        ],
-        [
-            'id' => 6,
-            'title' => 'So sánh son môi lì vs son môi bóng: Nên chọn loại nào?',
-            'excerpt' => 'Phân tích ưu nhược điểm của son môi lì và son môi bóng để bạn có lựa chọn phù hợp.',
-            'content' => 'Son môi lì và son môi bóng đều có những ưu điểm riêng...',
-            'featured_image' => 'https://images.unsplash.com/photo-1594736797933-d0c0c0c0c0c4?w=600',
-            'created_at' => '2025-01-10 13:10:00',
-            'author' => 'Makeup Artist',
-            'category' => 'Kiến thức'
-        ]
-    ];
-    
-    $featured_posts = array_slice($posts, 0, 3);
-}
 ?>
 
 <!DOCTYPE html>
@@ -160,10 +82,12 @@ if (empty($posts)) {
                     </nav>
                     
                     <div class="search-bar">
-                        <input type="text" class="search-input" placeholder="Tìm kiếm bài viết...">
-                        <button class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
+                        <form method="GET" action="index.php">
+                            <input type="text" name="search" class="search-input" placeholder="Tìm kiếm bài viết..." value="<?php echo htmlspecialchars($search ?? ''); ?>">
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
                     </div>
                     
                     <div class="user-actions">
@@ -219,9 +143,9 @@ if (empty($posts)) {
                 <?php foreach ($featured_posts as $index => $post): ?>
                     <div class="featured-post <?php echo $index === 0 ? 'main-post' : ''; ?>">
                         <div class="post-image">
-                            <img src="../<?php echo getProductImage($post['id']); ?>" 
+                            <img src="<?php echo $post['featured_image'] ?: '../images/product_1.jpg'; ?>" 
                                  alt="<?php echo htmlspecialchars($post['title']); ?>">
-                            <div class="post-category"><?php echo htmlspecialchars($post['category']); ?></div>
+                            <div class="post-category"><?php echo htmlspecialchars($post['category_name']); ?></div>
                         </div>
                         <div class="post-content">
                             <h3><?php echo htmlspecialchars($post['title']); ?></h3>
@@ -229,14 +153,18 @@ if (empty($posts)) {
                             <div class="post-meta">
                                 <span class="post-author">
                                     <i class="fas fa-user"></i>
-                                    <?php echo htmlspecialchars($post['author']); ?>
+                                    <?php echo htmlspecialchars($post['author_name']); ?>
                                 </span>
                                 <span class="post-date">
                                     <i class="fas fa-calendar"></i>
                                     <?php echo date('d/m/Y', strtotime($post['created_at'])); ?>
                                 </span>
+                                <span class="post-views">
+                                    <i class="fas fa-eye"></i>
+                                    <?php echo $post['view_count']; ?>
+                                </span>
                             </div>
-                            <a href="chi-tiet.php?id=<?php echo $post['id']; ?>" class="btn btn-primary">
+                            <a href="chi-tiet.php?slug=<?php echo $post['slug']; ?>" class="btn btn-primary">
                                 Đọc thêm
                             </a>
                         </div>
@@ -261,9 +189,9 @@ if (empty($posts)) {
                             <?php foreach ($posts as $post): ?>
                                 <article class="post-card">
                                     <div class="post-image">
-                                        <img src="../<?php echo getProductImage($post['id']); ?>" 
+                                        <img src="<?php echo $post['featured_image'] ?: '../images/product_1.jpg'; ?>" 
                                              alt="<?php echo htmlspecialchars($post['title']); ?>">
-                                        <div class="post-category"><?php echo htmlspecialchars($post['category']); ?></div>
+                                        <div class="post-category"><?php echo htmlspecialchars($post['category_name']); ?></div>
                                     </div>
                                     <div class="post-content">
                                         <h3><?php echo htmlspecialchars($post['title']); ?></h3>
@@ -271,14 +199,18 @@ if (empty($posts)) {
                                         <div class="post-meta">
                                             <span class="post-author">
                                                 <i class="fas fa-user"></i>
-                                                <?php echo htmlspecialchars($post['author']); ?>
+                                                <?php echo htmlspecialchars($post['author_name']); ?>
                                             </span>
                                             <span class="post-date">
                                                 <i class="fas fa-calendar"></i>
                                                 <?php echo date('d/m/Y', strtotime($post['created_at'])); ?>
                                             </span>
+                                            <span class="post-views">
+                                                <i class="fas fa-eye"></i>
+                                                <?php echo $post['view_count']; ?>
+                                            </span>
                                         </div>
-                                        <a href="chi-tiet.php?id=<?php echo $post['id']; ?>" class="btn btn-outline">
+                                        <a href="chi-tiet.php?slug=<?php echo $post['slug']; ?>" class="btn btn-outline">
                                             Đọc thêm
                                         </a>
                                     </div>
@@ -290,6 +222,30 @@ if (empty($posts)) {
                             </div>
                         <?php endif; ?>
                     </div>
+                    
+                    <!-- Pagination -->
+                    <?php if ($totalPages > 1): ?>
+                        <div class="pagination">
+                            <?php if ($page > 1): ?>
+                                <a href="?page=<?php echo $page - 1; ?><?php echo $categoryId ? '&category=' . $categoryId : ''; ?><?php echo $tagId ? '&tag=' . $tagId : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="pagination-btn">
+                                    <i class="fas fa-chevron-left"></i> Trước
+                                </a>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                                <a href="?page=<?php echo $i; ?><?php echo $categoryId ? '&category=' . $categoryId : ''; ?><?php echo $tagId ? '&tag=' . $tagId : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
+                                   class="pagination-btn <?php echo $i == $page ? 'active' : ''; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            <?php endfor; ?>
+                            
+                            <?php if ($page < $totalPages): ?>
+                                <a href="?page=<?php echo $page + 1; ?><?php echo $categoryId ? '&category=' . $categoryId : ''; ?><?php echo $tagId ? '&tag=' . $tagId : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="pagination-btn">
+                                    Sau <i class="fas fa-chevron-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="col-4">
@@ -299,25 +255,41 @@ if (empty($posts)) {
                         <div class="sidebar-widget">
                             <h3>Danh mục</h3>
                             <ul class="category-list">
-                                <li><a href="#">Xu hướng làm đẹp</a></li>
-                                <li><a href="#">Tips làm đẹp</a></li>
-                                <li><a href="#">Review sản phẩm</a></li>
-                                <li><a href="#">Chăm sóc da</a></li>
-                                <li><a href="#">Phong cách</a></li>
-                                <li><a href="#">Kiến thức</a></li>
+                                <li><a href="index.php">Tất cả (<?php echo $totalPosts; ?>)</a></li>
+                                <?php foreach ($categories as $category): ?>
+                                    <li>
+                                        <a href="index.php?category=<?php echo $category['id']; ?>">
+                                            <?php echo htmlspecialchars($category['name']); ?> 
+                                            (<?php echo $category['post_count']; ?>)
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
                             </ul>
+                        </div>
+                        
+                        <!-- Tags -->
+                        <div class="sidebar-widget">
+                            <h3>Tags phổ biến</h3>
+                            <div class="tag-cloud">
+                                <?php foreach (array_slice($tags, 0, 10) as $tag): ?>
+                                    <a href="index.php?tag=<?php echo $tag['id']; ?>" class="tag-item">
+                                        <?php echo htmlspecialchars($tag['name']); ?>
+                                        <span class="tag-count">(<?php echo $tag['post_count']; ?>)</span>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                         
                         <!-- Recent Posts -->
                         <div class="sidebar-widget">
                             <h3>Bài viết gần đây</h3>
                             <div class="recent-posts">
-                                <?php foreach (array_slice($posts, 0, 5) as $post): ?>
+                                <?php foreach ($recent_posts as $post): ?>
                                     <div class="recent-post">
-                                        <img src="../<?php echo getProductImage($post['id']); ?>" 
+                                        <img src="<?php echo $post['featured_image'] ?: '../images/product_1.jpg'; ?>" 
                                              alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <div class="recent-post-info">
-                                            <h4><?php echo htmlspecialchars($post['title']); ?></h4>
+                                            <h4><a href="chi-tiet.php?slug=<?php echo $post['slug']; ?>"><?php echo htmlspecialchars($post['title']); ?></a></h4>
                                             <span class="post-date"><?php echo date('d/m/Y', strtotime($post['created_at'])); ?></span>
                                         </div>
                                     </div>
@@ -440,7 +412,7 @@ if (empty($posts)) {
         .featured-grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
-            gap: var(--spacing-xl);
+            gap: 24px;
             height: 500px;
         }
         
@@ -522,7 +494,7 @@ if (empty($posts)) {
         .posts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-xl);
+            gap: 24px;
         }
         
         .post-card {
@@ -575,8 +547,8 @@ if (empty($posts)) {
         .sidebar-widget {
             background: var(--white);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-xl);
+            padding: 24px;
+            margin-bottom: 24px;
             box-shadow: var(--shadow-sm);
         }
         
@@ -664,6 +636,107 @@ if (empty($posts)) {
             text-align: center;
             padding: var(--spacing-3xl);
             color: var(--text-light);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 32px;
+            padding: 20px 0;
+        }
+        
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: var(--white);
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid var(--border-color, #e0e0e0);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .pagination-btn:hover {
+            background: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .pagination-btn.active {
+            background: var(--cta-color);
+            color: var(--white);
+            border-color: var(--cta-color);
+        }
+        
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .tag-item:hover {
+            background: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+        }
+        
+        .tag-count {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        /* Post Views */
+        .post-views {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        /* Recent Post Links */
+        .recent-post-info h4 a {
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .recent-post-info h4 a:hover {
+            color: var(--cta-color);
+        }
+        
+        /* Active Category/Tag */
+        .category-list a[href*="category="],
+        .tag-item[href*="tag="] {
+            position: relative;
+        }
+        
+        .category-list a:hover,
+        .tag-item:hover {
+            color: var(--cta-color);
         }
         
         @media (max-width: 768px) {

@@ -100,6 +100,10 @@ try {
                     
                     <!-- User Actions -->
                     <div class="user-actions">
+                        <button id="theme-toggle" class="theme-toggle" title="Chuyển đổi giao diện">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
                         <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
@@ -327,6 +331,23 @@ try {
     </footer>
 
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/blog.js"></script>
+    <script>
+        // Load theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        });
+    </script>
     
     <script>
         // Cập nhật số lượng giỏ hàng khi trang load
