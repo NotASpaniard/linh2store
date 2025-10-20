@@ -91,11 +91,11 @@ CREATE TABLE IF NOT EXISTS blog_seo (
 );
 
 -- Indexes for better performance
-CREATE INDEX idx_blog_posts_status ON blog_posts(status);
-CREATE INDEX idx_blog_posts_category ON blog_posts(category_id);
-CREATE INDEX idx_blog_posts_featured ON blog_posts(featured);
-CREATE INDEX idx_blog_posts_created ON blog_posts(created_at);
-CREATE INDEX idx_blog_comments_post ON blog_comments(post_id);
-CREATE INDEX idx_blog_comments_status ON blog_comments(status);
-CREATE INDEX idx_blog_likes_post ON blog_likes(post_id);
-CREATE INDEX idx_blog_likes_user ON blog_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON blog_posts(category_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_featured ON blog_posts(featured);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_created ON blog_posts(created_at);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_post ON blog_comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status);
+CREATE INDEX IF NOT EXISTS idx_blog_likes_post ON blog_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_likes_user ON blog_likes(user_id);

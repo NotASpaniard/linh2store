@@ -28,7 +28,8 @@ try {
     $recent_posts = $blogManager->getRecentPosts(5);
     
     // Tính tổng số bài viết cho pagination
-    $totalPosts = count($blogManager->getAllPosts(1000, 0, $categoryId, $tagId, $search));
+    $allPosts = $blogManager->getAllPosts(1000, 0, $categoryId, $tagId, $search);
+    $totalPosts = count($allPosts);
     $totalPages = ceil($totalPosts / $limit);
     
 } catch (Exception $e) {
@@ -37,6 +38,7 @@ try {
     $categories = [];
     $tags = [];
     $recent_posts = [];
+    $totalPosts = 0;
     $totalPages = 0;
 }
 
@@ -91,6 +93,10 @@ try {
                     </div>
                     
                     <div class="user-actions">
+                        <button id="theme-toggle" class="theme-toggle" title="Chuyển đổi giao diện">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
                         <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
@@ -365,6 +371,50 @@ try {
     </footer>
 
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/blog.js"></script>
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        }
+        
+        // Load theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+            
+            // Add click event to toggle button
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleTheme();
+                });
+            }
+        });
+    </script>
     
     <style>
         .blog-hero {

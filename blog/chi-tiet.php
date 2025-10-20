@@ -107,6 +107,10 @@ $ogImage = $post['og_image'] ?: $post['featured_image'];
                     </nav>
                     
                     <div class="user-actions">
+                        <button id="theme-toggle" class="theme-toggle" title="Chuyển đổi giao diện">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
                         <?php if (AuthMiddleware::isLoggedIn()): ?>
                             <a href="../user/" class="user-icon" title="Tài khoản">
                                 <i class="fas fa-user"></i>
@@ -379,6 +383,49 @@ $ogImage = $post['og_image'] ?: $post['featured_image'];
 
     <script src="../assets/js/main.js"></script>
     <script src="../assets/js/blog.js"></script>
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        }
+        
+        // Load theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+            
+            // Add click event to toggle button
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleTheme();
+                });
+            }
+        });
+    </script>
     
     <style>
         .article-content {

@@ -333,6 +333,25 @@ try {
     <script src="assets/js/main.js"></script>
     <script src="assets/js/blog.js"></script>
     <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle button icon
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        }
+        
         // Load theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -345,6 +364,14 @@ try {
                 if (icon) {
                     icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
                 }
+            }
+            
+            // Add click event to toggle button
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleTheme();
+                });
             }
         });
     </script>
